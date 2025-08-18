@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS products(
 	quantity		INTEGER			CHECK(quantity >= 0),
 	barCode			CHAR(13)		UNIQUE ,
 	softDelete		BOOLEAN			DEFAULT FALSE,
-	category		category_type	NOT NULL
+	category		category_t		NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS entryHistories(
