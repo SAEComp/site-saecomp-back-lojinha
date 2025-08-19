@@ -8,7 +8,7 @@ const dbQuery1 = `
     description,
     value,
     quantity,
-    barCode,
+    bar_code,
     category
     from products 
     where id = $1 and softDelete = false
@@ -21,10 +21,10 @@ const dbQuery2 = `
     description,
     value,
     quantity,
-    barCode,
+    bar_code,
     category
     from products 
-    where barcode = $1 and softDelete = false
+    where barcode = $1 and soft_delete = false
 `;
 
 const getProductDataById = async(id: number): Promise<Product|null> => {

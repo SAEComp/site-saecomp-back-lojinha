@@ -2,24 +2,19 @@ import pool from "../../database/connection";
 import { Product } from "../../interfaces/product.interface";
 
 const dbQuery = `
-    SELECT * FROM Products
+    SELECT * FROM products
     LIMIT $1 OFFSET $2
+    WHERE soft_delete = false
 `;
 
-const getProductDataById = async(id: number): Promise<Product|null> => {
+const getProductPageData = async(pageSize: number, page: number): Promise<Product[]> => {
     
     // Obtém página de produtos
-    const {rows} = await pool.query(dbQuery, [id]);
+    const {rows} = await pool.query(dbQuery, [pageSize, page]);
+    const products : Product[] = rows;
 
-    // Obtenção de produto procurado
-    const product : Product = result.rows[0];
-
-    // Produto não encontrado
-    if(!product)
-        return null;
-
-    // Retorna produto
-    return product;
+    // Retorna página de produtos
+    return products;
 }
 
-export default getProductDataById;
+export default getProductPageData;

@@ -10,7 +10,7 @@ export interface Product{
     value: number;
     description: string;
     quantity: number;
-    barCode: string;
+    bar_code: string;
     category: number;
 }
 
