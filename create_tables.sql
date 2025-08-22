@@ -17,19 +17,19 @@ CREATE TABLE IF NOT EXISTS products(
 	value			REAL			NOT NULL,
 	description		TEXT			NOT NULL,
 	quantity		INTEGER			CHECK(quantity >= 0),
-	barCode			CHAR(13)		UNIQUE ,
-	softDelete		BOOLEAN			DEFAULT FALSE,
-	category		category_type	NOT NULL
+	bar_code		CHAR(13)		UNIQUE ,
+	soft_delete		BOOLEAN			DEFAULT FALSE,
+	category		category_t		NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS entryHistories(
+CREATE TABLE IF NOT EXISTS entry_histories(
 	id				BIGSERIAL	PRIMARY KEY,
 	products_id		INT 		NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
 	date			DATE 		NOT NULL DEFAULT CURRENT_DATE,
 	quantity		INTEGER		CHECK(quantity >= 0)
 );
 
-CREATE TABLE IF NOT EXISTS buyOrders(
+CREATE TABLE IF NOT EXISTS buy_orders(
 	id				BIGSERIAL		PRIMARY KEY,
 	users_id		INT 			NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	date			DATE 			NOT NULL DEFAULT CURRENT_DATE,
