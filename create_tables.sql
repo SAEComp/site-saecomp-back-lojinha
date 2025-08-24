@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS buy_orders(
 CREATE TABLE IF NOT EXISTS items(
 	id				BIGSERIAL		PRIMARY KEY,
 	products_id		INT				NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-	buyOrders_id	INT 			NOT NULL REFERENCES buyOrders(id) ON DELETE CASCADE,
+	buy_orders_id	INT 			NOT NULL REFERENCES buyOrders(id) ON DELETE CASCADE,
 	quantity		INTEGER			CHECK(quantity >= 0)
 );
 
