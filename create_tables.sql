@@ -1,5 +1,5 @@
-CREATE TYPE category_type AS ENUM('sweet', 'salty', 'drink');
-CREATE TYPE status_type AS ENUM('cart', 'pendingPayment', 'finishedPayment');
+CREATE TYPE category_t AS ENUM('sweet', 'salty', 'drink');
+CREATE TYPE status_t AS ENUM('cart', 'pendingPayment', 'finishedPayment');
 
 create table if not exists users (
     id serial primary key,
@@ -33,13 +33,13 @@ CREATE TABLE IF NOT EXISTS buy_orders(
 	id				BIGSERIAL		PRIMARY KEY,
 	users_id		INT 			NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	date			DATE 			NOT NULL DEFAULT CURRENT_DATE,
-	status			status_type		NOT NULL DEFAULT 'cart'
+	status			status_t		NOT NULL DEFAULT 'cart'
 );
 
 CREATE TABLE IF NOT EXISTS items(
 	id				BIGSERIAL		PRIMARY KEY,
 	products_id		INT				NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-	buy_orders_id	INT 			NOT NULL REFERENCES buyOrders(id) ON DELETE CASCADE,
+	buy_orders_id	INT 			NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
 	quantity		INTEGER			CHECK(quantity >= 0)
 );
 
