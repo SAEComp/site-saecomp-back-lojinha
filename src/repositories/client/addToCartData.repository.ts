@@ -26,9 +26,9 @@ const addtoCartData = async(user_id: number, product_id: number, quantity: numbe
     // Tenta criar nova ordem se ela não existir
     const row = await pool.query(dbQueryCreateBuyOrder, [user_id]);
 
-    // Se a ordem foi criada agora 
+    // Se a ordem foi criada agora, adicionamos item 
     if(row.rowCount != 0){
-
+        
     }
 
     // Busca produto dentro do carrinho do usuário
