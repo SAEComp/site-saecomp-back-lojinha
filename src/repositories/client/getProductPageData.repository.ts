@@ -1,20 +1,40 @@
 import pool from "../../database/connection";
 import { Product } from "../../interfaces/product.interface";
+import { ICGetProductPageInSchema} from "../../schemas/lojinha/input/getProductPageIn.schema";
 
-const dbQuery = `
+const dbQueryWithoutCategory = `
     SELECT * FROM products
-    LIMIT $1 OFFSET $2
     WHERE soft_delete = false
+    LIMIT $1 OFFSET $2
 `;
 
-const getProductPageData = async(pageSize: number, page: number): Promise<Product[]> => {
+const dbQueryWithCategory = `
+    SELECT * FROM products
+    WHERE soft_delete = false
+        AND category = $1
+    LIMIT $2 OFFSET $3
+`;
+
+const getProductPageDataWithoutCategory = async(productSchema: ICGetProductPageInSchema): Promise<Product[]> => {
     
     // Obtém página de produtos
-    const {rows} = await pool.query(dbQuery, [pageSize, page]);
+    const offset = (productSchema.page - 1) * productSchema.pageSize; // Número de páginas puladas antes de obter dados
+    const {rows} = await pool.query(dbQueryWithoutCategory, [productSchema.pageSize, offset]);
     const products : Product[] = rows;
 
     // Retorna página de produtos
     return products;
 }
 
-export default getProductPageData;
+const getProductPageDataWithCategory = async(productSchema: ICGetProductPageInSchema): Promise<Product[]> => {
+    
+    // Obtém página de produtos
+    const offset = (productSchema.page - 1) * productSchema.pageSize; // Número de páginas puladas antes de obter dados
+    const {rows} = await pool.query(dbQueryWithCategory, [productSchema.category, productSchema.pageSize, offset]);
+    const products : Product[] = rows;
+
+    // Retorna página de produtos
+    return products;
+}
+
+export {getProductPageDataWithoutCategory, getProductPageDataWithCategory};

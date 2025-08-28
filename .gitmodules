@@ -1,3 +1,4 @@
 [submodule "src/schemas"]
 	path = src/schemas
 	url = https://github.com/SAEComp/site-saecomp-schemas.git
+	branch = schema_lojinha
