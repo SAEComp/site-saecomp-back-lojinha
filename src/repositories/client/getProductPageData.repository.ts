@@ -19,8 +19,7 @@ const getProductPageDataWithoutCategory = async(productSchema: ICGetProductPageI
     
     // Obtém página de produtos
     const offset = (productSchema.page - 1) * productSchema.pageSize; // Número de páginas puladas antes de obter dados
-    const {rows} = await pool.query(dbQueryWithoutCategory, [productSchema.pageSize, offset]);
-    const products : Product[] = rows;
+    const products : Product [] = (await pool.query(dbQueryWithoutCategory, [productSchema.pageSize, offset])).rows;
 
     // Retorna página de produtos
     return products;

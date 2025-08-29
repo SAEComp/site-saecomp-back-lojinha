@@ -43,7 +43,7 @@ const dbQueryUpdateItems = `
         AND i.products_id = $3
 `;
 
-const addtoCartData = async(user_id: number, product_id: number, quantity: number): Promise<number|null> => {
+export const addtoCartData = async(user_id: number, product_id: number, quantity: number): Promise<number|null> => {
     
     // Valor retornado pela função 
     var returned: number|null= 0;
