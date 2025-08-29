@@ -36,3 +36,5 @@ const getProduct = async(req: Request, res: Response): Promise<void> => {
             res.status(500).json({message: 'Erro interno do servidor'});
         }
 }
+
+export default getProduct
