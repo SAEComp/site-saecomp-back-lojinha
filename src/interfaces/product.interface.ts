@@ -1,7 +1,7 @@
 export enum category_t{
-    sweety = 0,
-    salty,
-    drink
+    sweet ='sweety',
+    salty = 'salty',
+    drink = 'drink'
 } 
 
 export interface Product{
@@ -11,6 +11,6 @@ export interface Product{
     description: string;
     quantity: number;
     bar_code: string;
-    category: number;
+    category: category_t;
 }
 

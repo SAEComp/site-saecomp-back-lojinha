@@ -2,7 +2,7 @@ import pool from "../../database/connection";
 import { Product } from "../../interfaces/product.interface";
 
 const dbQuery1 = `
-    select 
+    SELECT 
     id,
     name,
     description,
@@ -10,12 +10,12 @@ const dbQuery1 = `
     quantity,
     bar_code,
     category
-    from products 
-    where id = $1 and softDelete = false
+    FROM products 
+    WHERE id = $1 and soft_Delete = false
 `;
 
 const dbQuery2 = `
-    select 
+    SELECT 
     id,
     name,
     description,
@@ -23,8 +23,8 @@ const dbQuery2 = `
     quantity,
     bar_code,
     category
-    from products 
-    where barcode = $1 and soft_delete = false
+    FROM products 
+    WHERE bar_code = $1 and soft_delete = false
 `;
 
 const getProductDataById = async(id: number): Promise<Product|null> => {
