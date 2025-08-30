@@ -1,40 +1,51 @@
 import { Request, Response} from "express";
-import { Product } from "../../interfaces/product.interface";
+import { ApiError } from "../../errors/ApiError";
 import { getProductDataByBarCode, getProductDataById } from "../../repositories/client/getProductData.repository";
 import { getProductInSchema } from "../../schemas/lojinha/input/getProductIn.schema";
 import { getProductOutSchema } from "../../schemas/lojinha/output/getProductOut.schema";
+import { ICGetProductOutSchema } from "../../schemas/lojinha/output/getProductOut.schema";
 
 const getProduct = async(req: Request, res: Response): Promise<void> => {
-        try{
-            var product : Product|null;
-            
-            const query = await getProductInSchema.parse(req.query);
-            
-            if(query.bar_code != undefined){
-                product = await getProductDataByBarCode(query.bar_code);
-            }
-            else if(query.product_id != undefined){
-                product = await getProductDataById(query.product_id);
-            }
-            else{
-                res.status(500).json({message: 'Nenhum parâmetro passado'});
-                return ;
-            }
-            
-            if(!product){
-                res.status(404).json({message: 'Produto não encontrados'});
-                return ;
-            }
-            
-            const safedProduct = getProductOutSchema.parse(product); 
-    
-            res.status(200).json(safedProduct)
-    
-        } catch(error){
-            
-            console.log(error);
-            res.status(500).json({message: 'Erro interno do servidor'});
+    try{
+        // Produto a ser retornado
+        let product : ICGetProductOutSchema | undefined;
+        
+        // Validação de query de entrada
+        const query = await getProductInSchema.parse(req.query);
+        
+        // Verificação de parâmetros passados na query são válidos
+        if((!query.bar_code && !query.product_id) || (query.bar_code && query.product_id)){
+            throw new ApiError(404, 'Parâmetros inválidos');
+            return ;
         }
+
+        // Busca produto pelo código de barras
+        if(query.bar_code != undefined){
+            product = await getProductDataByBarCode(query.bar_code);
+        }
+        
+        // Busca produto pelo id
+        if(query.product_id != undefined){
+            product = await getProductDataById(query.product_id);
+        }
+        
+        // Produto não encontrado
+        if(!product){
+            throw new ApiError(404, 'Produto não encontrado');
+            return ;
+        }
+        
+        // Validação do produto a ser retornado
+        const safedProduct = getProductOutSchema.parse(product); 
+        
+        // Retorno do produto
+        res.status(200).json(safedProduct)
+
+    } catch(error){
+        
+        console.log(error);
+        res.status(500).json({message: 'Erro interno do servidor'});
+    }
 }
 
 export default getProduct

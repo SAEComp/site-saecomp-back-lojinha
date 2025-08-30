@@ -1,7 +1,7 @@
 import pool from "../../database/connection";
-import { Product } from "../../interfaces/product.interface";
+import { ICGetProductOutSchema } from "../../schemas/lojinha/output/getProductOut.schema";
 
-const dbQuery1 = `
+const dbQueryGetProductById = `
     SELECT 
     id,
     name,
@@ -14,7 +14,7 @@ const dbQuery1 = `
     WHERE id = $1 and soft_Delete = false
 `;
 
-const dbQuery2 = `
+const dbQueryGetProductByBarCode = `
     SELECT 
     id,
     name,
@@ -27,33 +27,25 @@ const dbQuery2 = `
     WHERE bar_code = $1 and soft_delete = false
 `;
 
-const getProductDataById = async(id: number): Promise<Product|null> => {
+const getProductDataById = async(id: number): Promise<ICGetProductOutSchema> => {
     
     // Procura produto pelo id
-    const result = await pool.query(dbQuery1, [id]);
+    const result = await pool.query(dbQueryGetProductById, [id]);
 
     // Obtenção de produto procurado
-    const product : Product = result.rows[0];
-
-    // Produto não encontrado
-    if(!product)
-        return null;
+    const product : ICGetProductOutSchema= result.rows[0];
 
     // Retorna produto
     return product;
 }
 
-const getProductDataByBarCode = async(barCode: string): Promise<Product|null> => {
+const getProductDataByBarCode = async(barCode: string): Promise<ICGetProductOutSchema> => {
     
     // Procura produto pelo id
-    const result = await pool.query(dbQuery2, [barCode]);
+    const result = await pool.query(dbQueryGetProductByBarCode, [barCode]);
 
     // Obtenção de produto procurado
-    const product : Product = result.rows[0];
-
-    // Produto não encontrado
-    if(!product)
-        return null;
+    const product : ICGetProductOutSchema = result.rows[0];
 
     // Retorna produto
     return product;
