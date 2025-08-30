@@ -34,7 +34,7 @@ export function errorHandler(
         status = 422;
         code = "VALIDATION_ERROR";
         message = "Erro de validação";
-        issues = err.errors.map(e => ({
+        issues = err.issues.map(e => ({
             path: e.path.join("."),
             message: e.message
         }));
