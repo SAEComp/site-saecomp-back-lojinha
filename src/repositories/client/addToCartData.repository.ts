@@ -1,5 +1,5 @@
-import { check } from "zod";
 import pool from "../../database/connection";
+import { ICAddToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.schema";
 
 const dbQueryVerifyProduct = `
     SELECT 1 FROM products
@@ -43,7 +43,7 @@ const dbQueryUpdateItems = `
         AND i.products_id = $3
 `;
 
-export const addtoCartData = async(user_id: number, product_id: number, quantity: number): Promise<number|null> => {
+export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchema): Promise<number|null> => {
     
     // Valor retornado pela função 
     var returned: number|null= 0;
@@ -64,7 +64,7 @@ export const addtoCartData = async(user_id: number, product_id: number, quantity
         await client.query('BEGIN');
         
         // Checagem de existência do produto e se está disponível em quantidade suficiente 
-        checkProduct = (await client.query(dbQueryVerifyProduct, [product_id, quantity])).rowCount;
+        checkProduct = (await client.query(dbQueryVerifyProduct, [inSchema.product_id, inSchema.quantity])).rowCount;
 
         // Se disponível
         if(checkProduct){
@@ -79,13 +79,13 @@ export const addtoCartData = async(user_id: number, product_id: number, quantity
                 Verificação da existência do item que conecta carrinho ao produto, se existir é atualizado
                 e, caso não exista, é criado
             */
-            item_id = (await client.query(dbQuerySearchItem, [cart_id, product_id])).rows[0]?.id;
+            item_id = (await client.query(dbQuerySearchItem, [cart_id, inSchema.product_id])).rows[0]?.id;
             if(item_id){
-                qntItensUpdated = (await client.query(dbQueryUpdateItems, [quantity, user_id, product_id])).rowCount;
+                qntItensUpdated = (await client.query(dbQueryUpdateItems, [inSchema.quantity, user_id, inSchema.product_id])).rowCount;
                 returned = qntItensUpdated;
             }
             else{
-                await client.query(dbQueryCreateItem, [product_id, cart_id, quantity]);
+                await client.query(dbQueryCreateItem, [inSchema.product_id, cart_id, inSchema.quantity]);
                 returned = 1;
             }
         }

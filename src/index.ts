@@ -12,15 +12,14 @@ const port: number = 3000;
 
 // ================= middlewares ================= //
 app.use(express.json());
-//app.use(authenticate);
+app.use(authenticate());
 
 // ================= routers ================= //
 app.use("/api/lojinha", userRounter);
 app.use("/api/lojinha/admin", adminRounter);
 
-
 // ================= error handler ================= //
-//app.use(errorHandler);
+app.use(errorHandler);
 
 app.listen(port, () => {
     console.log(`serving on http://localhost:${port}`);

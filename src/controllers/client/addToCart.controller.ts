@@ -6,7 +6,7 @@ import { addToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.schem
 const addToCart = async(req: Request, res: Response): Promise<void> =>{
     try{
         // Validação do body de entrada
-        const query =  await addToCartInSchema.parse(req.body);
+        const body =  await addToCartInSchema.parse(req.body);
 
         // Verificação se o usuário está autenticado
         if(req.userId === undefined){
@@ -14,7 +14,7 @@ const addToCart = async(req: Request, res: Response): Promise<void> =>{
         }
 
         // Adiciona produto ao carrinho
-        const returned : number | null = await addtoCartData(req.userId, query.product_id, query.quantity)
+        const returned : number | null = await addtoCartData(req.userId, {product_id: body.product_id, quantity: body.quantity});
 
         // Verifica se a quantidade solicitada é maior que a disponível em estoque
         if(!returned){

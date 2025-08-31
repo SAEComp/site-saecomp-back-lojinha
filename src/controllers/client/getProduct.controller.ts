@@ -21,12 +21,12 @@ const getProduct = async(req: Request, res: Response): Promise<void> => {
 
         // Busca produto pelo código de barras
         if(query.bar_code != undefined){
-            product = await getProductDataByBarCode(query.bar_code);
+            product = await getProductDataByBarCode({bar_code: query.bar_code});
         }
         
         // Busca produto pelo id
         if(query.product_id != undefined){
-            product = await getProductDataById(query.product_id);
+            product = await getProductDataById({product_id: query.product_id});
         }
         
         // Produto não encontrado
