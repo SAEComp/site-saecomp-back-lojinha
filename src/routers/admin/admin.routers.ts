@@ -5,6 +5,7 @@ import getProduct from "../../controllers/client/getProduct.controller";
 // Instanciação do express
 const adminRounter = express.Router();
 
+adminRounter.post('/admin/adicionarProduto');
 
 // Definição do tratamento de requisições
 export default adminRounter;
