@@ -13,7 +13,7 @@ const dbQueryGetProductById = `
     img_url,
     category
     FROM products 
-    WHERE id = $1 and soft_Delete = false
+    WHERE id = $1 AND soft_Delete = false
 `;
 
 const dbQueryGetProductByBarCode = `
@@ -27,7 +27,7 @@ const dbQueryGetProductByBarCode = `
     img_url,
     category
     FROM products 
-    WHERE bar_code = $1 and soft_delete = false
+    WHERE bar_code = $1 AND soft_delete = false
 `;
 
 const getProductDataById = async(inSchema :ICGetProductInSchema): Promise<ICGetProductOutSchema> => {

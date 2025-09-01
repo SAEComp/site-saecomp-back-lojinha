@@ -46,7 +46,7 @@ const dbQueryUpdateItems = `
 export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchema): Promise<number|null> => {
     
     // Valor retornado pela função 
-    var returned: number|null= 0;
+    var returned: number|null = 0;
     
     // Variáveis de checagem de atualização do carrinho
     var checkProduct: number|null|undefined = 0;
@@ -71,7 +71,7 @@ export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchem
 
             // Checagem de existência do carrinho, e, caso não exista, é criado
             cart_id = (await client.query(dbQuerySearchCart, [user_id])).rows[0]?.id;
-            if(!cart_id){
+            if(cart_id === undefined){
                 cart_id = (await client.query(dbQueryCreateCart, [user_id])).rows[0]?.id;
             }
             
@@ -80,14 +80,14 @@ export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchem
                 e, caso não exista, é criado
             */
             item_id = (await client.query(dbQuerySearchItem, [cart_id, inSchema.product_id])).rows[0]?.id;
-            if(item_id){
-                qntItensUpdated = (await client.query(dbQueryUpdateItems, [inSchema.quantity, user_id, inSchema.product_id])).rowCount;
-                returned = qntItensUpdated;
+            if(item_id === undefined){
+                await client.query(dbQueryCreateItem, [inSchema.product_id, cart_id, inSchema.quantity]);
             }
             else{
-                await client.query(dbQueryCreateItem, [inSchema.product_id, cart_id, inSchema.quantity]);
-                returned = 1;
+                await client.query(dbQueryUpdateItems, [inSchema.quantity, user_id, inSchema.product_id]);
             }
+
+            returned = 1;
         }
 
         // Finaliza transação com BD
