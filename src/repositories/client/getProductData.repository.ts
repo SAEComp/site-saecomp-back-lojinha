@@ -10,6 +10,7 @@ const dbQueryGetProductById = `
     value,
     quantity,
     bar_code,
+    img_url,
     category
     FROM products 
     WHERE id = $1 and soft_Delete = false
@@ -23,6 +24,7 @@ const dbQueryGetProductByBarCode = `
     value,
     quantity,
     bar_code,
+    img_url,
     category
     FROM products 
     WHERE bar_code = $1 and soft_delete = false

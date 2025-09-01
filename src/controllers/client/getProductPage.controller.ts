@@ -24,7 +24,6 @@ const getProductPage = async(req: Request, res: Response): Promise<void> => {
         // Verifica se há produtos a serem retornados
         if(!products || products.length === 0){
             throw new ApiError(404, 'Nenhum produto encontrado');
-            return ;
         }
         
         // Valida os produtos obtidos com o schema de saída

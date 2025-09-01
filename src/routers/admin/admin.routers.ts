@@ -1,11 +1,12 @@
 import express from "express";
-import getProductPage from "../../controllers/client/getProductPage.controller";
-import getProduct from "../../controllers/client/getProduct.controller";
+import addProduct from "../../controllers/admin/addProduct.controller";
+import editProduct from "../../controllers/admin/editProduct.controller";
 
 // Instanciação do express
 const adminRounter = express.Router();
 
-adminRounter.post('/admin/adicionarProduto');
+adminRounter.post('/admin/adicionarProduto', addProduct);
+adminRounter.post('/admin/editarProduto', editProduct);
 
 // Definição do tratamento de requisições
 export default adminRounter;
