@@ -4,7 +4,7 @@ import { Item } from "../../interfaces/Item.interface";
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
-    SET status = 'pendingPayment'
+    SET status = 'pendingPayment', "date" = CURRENT_DATE
     WHERE id = $1
 `;
 

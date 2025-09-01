@@ -4,6 +4,7 @@ import getProduct from "../../controllers/client/getProduct.controller";
 import addToCart from "../../controllers/client/addToCart.controller";
 import addComment from "../../controllers/client/addComent.controller";
 import finishBuy from "../../controllers/client/finishBuy.controller";
+import registerPayment from "../../controllers/client/registerPayment.controller";
 
 // Instanciação do express
 const userRounter = express.Router();
@@ -14,5 +15,6 @@ userRounter.get("/detalhesProduto", getProduct);
 userRounter.post("/adicionarCarrinho", addToCart);
 userRounter.post("/adicionarComentario", addComment);
 userRounter.post("/finalizarCompra", finishBuy);
+userRounter.post("/registrarPagamento", registerPayment);
 
 export default userRounter;
