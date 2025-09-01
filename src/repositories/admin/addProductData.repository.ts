@@ -11,7 +11,7 @@ const dbQueryAddProduct = `
 export const addProductData = async(inSchema: ICAddProductInSchema): Promise<number|null> => {
     
     // Retorna id do produto adicionado
-    const { id } = (await pool.query(dbQueryAddProduct, [inSchema.name, inSchema.value, 
-        inSchema.description, inSchema.quantity, inSchema.category, inSchema.img_url, inSchema.bar_code])).rows[0];
+    const id  = (await pool.query(dbQueryAddProduct, [inSchema.name, inSchema.value, 
+        inSchema.description, inSchema.quantity, inSchema.category, inSchema.img_url, inSchema.bar_code])).rows[0]?.id;
     return id
 }
