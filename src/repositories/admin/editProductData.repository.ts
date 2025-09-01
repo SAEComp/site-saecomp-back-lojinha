@@ -1,7 +1,11 @@
 import pool from "../../database/connection";
 import { ICEditProductInSchema } from "../../schemas/lojinha/input/editProductIn.schema";
 
-
+/* 
+    Observe que quando a utilização do código de barras for eficientemente implementada,
+    o código deverá ser adaptado para que exista uma edição via código de barras e uma edição
+    via id do produto
+*/
 export const editProductData = async(inSchema: ICEditProductInSchema): Promise<number|null> =>{
     
     // Referência a valores a serem atualizados
@@ -45,7 +49,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
 
     // Adiciona o id ao final dos valores para a cláusula WHERE
     const idParamIndex: number = values.length + 1;
-    values.push(inSchema.id); 
+    values.push(inSchema.product_id); 
 
     // Query de atualização dinâmica
     const dbQueryEditProduct = `
