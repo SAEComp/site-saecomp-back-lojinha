@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS entry_histories(
 
 CREATE TABLE IF NOT EXISTS buy_orders(
 	id				BIGSERIAL			PRIMARY KEY,
-	user_id		INT 					NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	user_id			INT 				NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	date			DATE 				NOT NULL DEFAULT CURRENT_DATE,
-	status			status_t			NOT NULL DEFAULT 'cart',
+	status			status_t			NOT NULL DEFAULT 'cart'
 );
 
 CREATE TABLE IF NOT EXISTS items(
