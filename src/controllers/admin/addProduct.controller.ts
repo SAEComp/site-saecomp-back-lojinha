@@ -10,10 +10,10 @@ const addProduct = async(req: Request, res: Response): Promise<void> => {
         const body = addProductInSchema.parse(req.body);
 
         // Adiciona produto ao banco de dados
-        const product_id = await addProductData({name: body.name, value: body.value, description: body.description, quantity: body.quantity, category: body.category, img_url: body.img_url,bar_code: body.bar_code});
+        const productId = await addProductData({name: body.name, value: body.value, description: body.description, quantity: body.quantity, category: body.category, img_url: body.img_url,bar_code: body.bar_code});
         
         // Verifica se o produto foi adicionado, e se não, retorna erro
-        if(!product_id) throw new ApiError(404, 'Produto não adicionado');
+        if(!productId) throw new ApiError(404, 'Produto não adicionado');
 
         // Retorno de sucesso
         res.status(200).json({message: 'Produto adicionado com sucesso'});

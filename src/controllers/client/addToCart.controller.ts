@@ -14,10 +14,10 @@ const addToCart = async(req: Request, res: Response): Promise<void> =>{
         }
 
         // Adiciona produto ao carrinho
-        const returned : number | null = await addtoCartData(req.userId, {product_id: body.product_id, quantity: body.quantity});
+        const result : number | null = await addtoCartData(req.userId, {product_id: body.product_id, quantity: body.quantity});
 
         // Verifica se a quantidade solicitada é maior que a disponível em estoque
-        if(!returned){
+        if(!result){
             throw new ApiError(404, 'Quantidade solicitada maior que a disponível em estoque');          
             return;
         }
