@@ -32,6 +32,7 @@ export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<numbe
     // Variáveis de controle
     let returned: number|null = 0;
     let qntUpdatedBuyOrders: number|null = 0;
+    let qntUpdatedProducts: number|null = 0;
     
     // Array para armazenar os itens do pedido
     let items: Item[] = [];
@@ -61,8 +62,8 @@ export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<numbe
         // Atualiza a quantidade dos produtos no estoque, se não conseguir atualizar algum produto, retorna o id do produto negativo
         for(var i: number = 0; i < items.length; i++){
             
-            const rowCount = (await client.query(dbQueryUpdateProductAfterFinishedBuyOrder, [items[i].quantity, items[i].products_id])).rowCount;
-            if(!rowCount || rowCount === 0){
+            qntUpdatedProducts = (await client.query(dbQueryUpdateProductAfterFinishedBuyOrder, [items[i].quantity, items[i].products_id])).rowCount;
+            if(!qntUpdatedProducts){
                 await client.query('ROLLBACK');
                 return (-items[i].products_id);
             }
