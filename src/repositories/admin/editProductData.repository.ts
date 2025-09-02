@@ -29,27 +29,27 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
         values.push(inSchema.name);
     }
     if(inSchema.value !== undefined){
-        updateIndex.push('value = $' + (values.length + 1));
+        updateIndex.push(' value = $' + (values.length + 1));
         values.push(inSchema.value);
     }
     if(inSchema.description !== undefined){
-        updateIndex.push('description = $' + (values.length + 1));
+        updateIndex.push(' description = $' + (values.length + 1));
         values.push(inSchema.description);
     }
     if(inSchema.quantity !== undefined){
-        updateIndex.push('quantity = $' + (values.length + 1));
+        updateIndex.push(' quantity = $' + (values.length + 1));
         values.push(inSchema.quantity);
     }
     if(inSchema.bar_code !== undefined){
-        updateIndex.push('bar_code = $' + (values.length + 1));
+        updateIndex.push(' bar_code = $' + (values.length + 1));
         values.push(inSchema.bar_code ?? null);
     }
     if(inSchema.img_url !== undefined){
-        updateIndex.push('img_url = $' + (values.length + 1));
+        updateIndex.push(' img_url = $' + (values.length + 1));
         values.push(inSchema.img_url);
     }
     if(inSchema.category !== undefined){
-        updateIndex.push('category = $' + (values.length + 1));
+        updateIndex.push(' category = $' + (values.length + 1));
         values.push(inSchema.category);
     }
 
@@ -64,7 +64,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
     const dbQueryEditProduct = `
         UPDATE products
         SET ${updateIndex.join(', ')}
-        WHEN id = ${idParamIndex}
+        WHERE id = $${idParamIndex}
     `;
     
     // Conexão com o banco de dados
@@ -77,18 +77,22 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
         // Executa edição de produto, retorna o número de linhas afetadas e verificando sucesso da edição
         qntEditedProducts = (await client.query(dbQueryEditProduct, values)).rowCount;
         if(!qntEditedProducts){
-            client.query('ROLLBACK');
+            await client.query('ROLLBACK');
             return null;
         }
 
         /* 
-            Se a quantidade foi atualizada, adiciona um registro na tabela entry_histories
+            Se a quantidade do produto foi atualizada, adiciona um registro na tabela entry_histories
             e verifica o sucesso da inserção
         */
-        if(inSchema.quantity != undefined){
+        if(inSchema.quantity !== undefined){
+            
+            // Obtem o id do registro de adição de produto inserido
             entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [inSchema.product_id, inSchema.quantity])).rows[0]?.id
-            if(entryHistoryId !== undefined){
-                client.query('ROLLBACK');
+            
+            // Verifica se a inserção foi bem sucedida
+            if(entryHistoryId === undefined){
+                await client.query('ROLLBACK');
                 return null;
             }
         }
