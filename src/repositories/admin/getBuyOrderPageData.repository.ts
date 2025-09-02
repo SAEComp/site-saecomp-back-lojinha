@@ -4,13 +4,15 @@ import { ICGetBuyOrderOutSchema } from "../../schemas/lojinha/output/getBuyOrder
 
 const dbQueryWithoutStatus = `
     SELECT * FROM buy_orders
-    WHERE soft_delete = false
+    WHERE status != 'cart'
+    ORDER BY "date" DESC, id DESC
     LIMIT $1 OFFSET $2
 `;
 
 const dbQueryWithStatus = `
     SELECT * FROM buy_orders
     WHERE status = $1
+    ORDER BY "date" DESC, id DESC
     LIMIT $2 OFFSET $3
 `;
 
@@ -18,20 +20,20 @@ const getBuyOrderPageDataWithoutStatus = async(inSchema: ICGetBuyOrderPageInSche
     
     // Obtém página de produtos
     const offset = (inSchema.page - 1) * inSchema.page_size; // Número de páginas puladas antes de obter dados
-    const products : ICGetBuyOrderOutSchema[] = (await pool.query(dbQueryWithoutStatus, [inSchema.page_size, offset])).rows;
+    const buyOrders : ICGetBuyOrderOutSchema[] = (await pool.query(dbQueryWithoutStatus, [inSchema.page_size, offset])).rows;
 
     // Retorna página de produtos
-    return products;
+    return buyOrders;
 }
 
 const getBuyOrderPageDataWithStatus = async(inSchema: ICGetBuyOrderPageInSchema): Promise<ICGetBuyOrderOutSchema[]> => {
     
     // Obtém página de produtos
     const offset = (inSchema.page - 1) * inSchema.page_size; // Número de páginas puladas antes de obter dados
-    const products : ICGetBuyOrderOutSchema[] = (await pool.query(dbQueryWithStatus, [inSchema.status , inSchema.page_size, offset])).rows;
+    const buyOrders : ICGetBuyOrderOutSchema[] = (await pool.query(dbQueryWithStatus, [inSchema.status , inSchema.page_size, offset])).rows;
 
     // Retorna página de produtos
-    return products;
+    return buyOrders;
 }
 
 export {getBuyOrderPageDataWithoutStatus, getBuyOrderPageDataWithStatus};
