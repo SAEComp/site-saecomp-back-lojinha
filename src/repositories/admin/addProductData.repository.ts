@@ -4,7 +4,7 @@ import { ICAddProductInSchema } from "../../schemas/lojinha/input/addProductIn.s
 const dbQueryAddProduct = `
     INSERT INTO products (name, value, description, quantity, category, img_url ,bar_code)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
-    ON CONFLICT bar_code DO NOTHING
+    ON CONFLICT (bar_code) DO NOTHING
     RETURNING id
 `;
 
