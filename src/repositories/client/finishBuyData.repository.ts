@@ -11,12 +11,12 @@ const dbQuerySetBuyOrderToFinalized = `
 const dbQuerySearchItemsInBuyOrder = `
     SELECT 
         i.id,
-        i.products_id,
-        i.buy_orders_id,
+        i.product_id,
+        i.buy_order_id,
         i.quantity
     FROM items i
-    JOIN products p ON i.products_id = p.id
-    WHERE i.buy_orders_id = $1
+    JOIN products p ON i.product_id = p.id
+    WHERE i.buy_order_id = $1
         AND p.soft_delete = false 
 `;
 

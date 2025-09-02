@@ -18,8 +18,8 @@ const dbQueryWithCategory = `
 const getProductPageDataWithoutCategory = async(productSchema: ICGetProductPageInSchema): Promise<ICGetProductOutSchema[]> => {
     
     // Obtém página de produtos
-    const offset = (productSchema.page - 1) * productSchema.pageSize; // Número de páginas puladas antes de obter dados
-    const products : ICGetProductOutSchema[] = (await pool.query(dbQueryWithoutCategory, [productSchema.pageSize, offset])).rows;
+    const offset = (productSchema.page - 1) * productSchema.page_size; // Número de páginas puladas antes de obter dados
+    const products : ICGetProductOutSchema[] = (await pool.query(dbQueryWithoutCategory, [productSchema.page_size, offset])).rows;
 
     // Retorna página de produtos
     return products;
@@ -28,8 +28,8 @@ const getProductPageDataWithoutCategory = async(productSchema: ICGetProductPageI
 const getProductPageDataWithCategory = async(productSchema: ICGetProductPageInSchema): Promise<ICGetProductOutSchema[]> => {
     
     // Obtém página de produtos
-    const offset = (productSchema.page - 1) * productSchema.pageSize; // Número de páginas puladas antes de obter dados
-    const products : ICGetProductOutSchema[] = (await pool.query(dbQueryWithCategory, [productSchema.category, productSchema.pageSize, offset])).rows;
+    const offset = (productSchema.page - 1) * productSchema.page_size; // Número de páginas puladas antes de obter dados
+    const products : ICGetProductOutSchema[] = (await pool.query(dbQueryWithCategory, [productSchema.category, productSchema.page_size, offset])).rows;
 
     // Retorna página de produtos
     return products;

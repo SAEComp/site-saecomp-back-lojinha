@@ -15,10 +15,10 @@ const getProductPage = async(req: Request, res: Response): Promise<void> => {
         
         // Obtém página de produtos (com ou sem especificação de categoria)
         if(query.category == undefined){
-            products = await getProductPageDataWithoutCategory({page: query.page, pageSize: query.pageSize});
+            products = await getProductPageDataWithoutCategory({page: query.page, page_size: query.page_size});
         }
         else{
-            products = await getProductPageDataWithCategory({page: query.page, pageSize: query.pageSize, category: query.category});
+            products = await getProductPageDataWithCategory({page: query.page, page_size: query.page_size, category: query.category});
         }
         
         // Verifica se há produtos a serem retornados

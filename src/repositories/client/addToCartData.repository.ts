@@ -10,26 +10,26 @@ const dbQueryVerifyProduct = `
 
 const dbQuerySearchCart = `
     SELECT id FROM buy_orders
-    WHERE buy_orders.users_id = $1
+    WHERE buy_orders.user_id = $1
         AND buy_orders.status = 'cart'
 `;
 
 const dbQueryCreateCart = `
-    INSERT INTO buy_orders (users_id, date, status)
+    INSERT INTO buy_orders (user_id, date, status)
     VALUES ($1, CURRENT_DATE, 'cart')
     RETURNING id
 `;
 
 const dbQuerySearchItem = `
     SELECT id FROM items
-    WHERE buy_orders_id = $1
-        AND products_id = $2
+    WHERE buy_order_id = $1
+        AND product_id = $2
 `;
 
 const dbQueryCreateItem = `
-    INSERT INTO items (products_id, buy_orders_id, quantity)
+    INSERT INTO items (product_id, buy_order_id, quantity)
     VALUES ($1, $2, $3)
-    ON CONFLICT (buy_orders_id, products_id) DO NOTHING
+    ON CONFLICT (buy_order_id, product_id) DO NOTHING
     RETURNING id
 `;
 
@@ -37,10 +37,10 @@ const dbQueryUpdateItems = `
     UPDATE items i
     SET quantity = $1 
     FROM buy_orders bo
-    WHERE bo.users_id = $2
+    WHERE bo.user_id = $2
         AND bo.status = 'cart'
-        AND i.buy_orders_id = bo.id
-        AND i.products_id = $3
+        AND i.buy_order_id = bo.id
+        AND i.product_id = $3
 `;
 
 export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchema): Promise<number|null> => {

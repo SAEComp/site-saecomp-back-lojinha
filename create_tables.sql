@@ -32,28 +32,28 @@ CREATE TABLE IF NOT EXISTS products(
 
 CREATE TABLE IF NOT EXISTS entry_histories(
 	id				BIGSERIAL	PRIMARY KEY,
-	products_id		INT 		NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
+	product_id		INT 		NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
 	date			DATE 		NOT NULL DEFAULT CURRENT_DATE,
 	quantity		INTEGER		CHECK(quantity >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS buy_orders(
 	id				BIGSERIAL			PRIMARY KEY,
-	users_id		INT 				NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	user_id		INT 					NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	date			DATE 				NOT NULL DEFAULT CURRENT_DATE,
 	status			status_t			NOT NULL DEFAULT 'cart',
 );
 
 CREATE TABLE IF NOT EXISTS items(
-	id				BIGSERIAL			PRIMARY KEY,
-	products_id		INT					NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-	buy_orders_id	INT 				NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
-	quantity		INTEGER				CHECK(quantity >= 0),
-	CONSTRAINT 		unique_cart_product UNIQUE (buy_orders_id, products_id)
+	id				BIGSERIAL				PRIMARY KEY,
+	product_id		INT						NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+	buy_order_id	INT 					NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
+	quantity		INTEGER					CHECK(quantity >= 0),
+	CONSTRAINT 		unique_cart_product 	UNIQUE (buy_order_id, product_id)
 );
 
 CREATE TABLE IF NOT EXISTS comments(
 	id				BIGSERIAL		PRIMARY KEY,
-	users_id		INT 			NOT NULL REFERENCES users(id),
+	user_id			INT 			NOT NULL REFERENCES users(id),
 	content			TEXT			NOT NULL
 );
