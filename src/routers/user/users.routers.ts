@@ -5,6 +5,7 @@ import addToCart from "../../controllers/client/addToCart.controller";
 import addComment from "../../controllers/client/addComent.controller";
 import finishBuy from "../../controllers/client/finishBuy.controller";
 import registerPayment from "../../controllers/client/registerPayment.controller";
+import getBuyOrder from "../../controllers/client/getBuyOrder.controller";
 
 // Instanciação do express
 const userRounter = express.Router();
@@ -12,6 +13,7 @@ const userRounter = express.Router();
 // Definição do tratamento de requisições
 userRounter.get("/", getProductPage);
 userRounter.get("/detalhesProduto", getProduct);
+userRounter.get("/detalhesPedido", getBuyOrder);
 userRounter.post("/adicionarCarrinho", addToCart);
 userRounter.post("/adicionarComentario", addComment);
 userRounter.post("/finalizarCompra", finishBuy);
