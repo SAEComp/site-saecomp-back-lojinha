@@ -1,6 +1,12 @@
 import pool from "../../database/connection";
 import { ICEditProductInSchema } from "../../schemas/lojinha/input/editProductIn.schema";
 
+const dbQueryAddEntryHistorie = `
+    INSERT INTO entry_histories (product_id, quantity)
+    VALUES ($1, $2)
+    RETURNING id
+`;
+
 /* 
     Observe que quando a utilização do código de barras for eficientemente implementada,
     o código deverá ser adaptado para que exista uma edição via código de barras e uma edição
@@ -8,6 +14,9 @@ import { ICEditProductInSchema } from "../../schemas/lojinha/input/editProductIn
 */
 export const editProductData = async(inSchema: ICEditProductInSchema): Promise<number|null> =>{
     
+    let qntEditedProducts: number|null = 0;
+    let entryHistoryId: number|undefined = 0;
+
     // Referência a valores a serem atualizados
     const updateIndex: String[] = [];
 
@@ -57,11 +66,49 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
         SET ${updateIndex.join(', ')}
         WHEN id = ${idParamIndex}
     `;
+    
+    // Conexão com o banco de dados
+    const client = await pool.connect();
 
-    // Executa a query e retorna o número de linhas afetadas
-    const rowsCount = (await pool.query(dbQueryEditProduct, values)).rowCount;
+    try{
+        // Início de transação
+        await client.query('BEGIN');
 
-    // Se nenhuma linha foi afetada, retorna null (produto não encontrado)
-    return rowsCount;
+        // Executa edição de produto, retorna o número de linhas afetadas e verificando sucesso da edição
+        qntEditedProducts = (await client.query(dbQueryEditProduct, values)).rowCount;
+        if(!qntEditedProducts){
+            client.query('ROLLBACK');
+            return null;
+        }
+
+        /* 
+            Se a quantidade foi atualizada, adiciona um registro na tabela entry_histories
+            e verifica o sucesso da inserção
+        */
+        if(inSchema.quantity != undefined){
+            entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [inSchema.product_id, inSchema.quantity])).rows[0]?.id
+            if(entryHistoryId !== undefined){
+                client.query('ROLLBACK');
+                return null;
+            }
+        }
+
+        // Confirma a transação
+        await client.query('COMMIT');
+    }
+    catch(error){
+        // Em caso de erro, desfaz a transação e relança o erro
+        await client.query('ROLLBACK');
+        throw error;
+    }
+    finally{
+
+        // Liberação do cliente de volta ao pool
+        client.release();
+    }
+    
+
+    // Retorna a quantidade de produtos editados
+    return qntEditedProducts;
 
 }

@@ -97,7 +97,6 @@ export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchem
 
         // Caso ocorra algum erro, querys são revertidas
         await client.query('ROLLBACK');
-        returned = -1
         throw error;
 
     } finally {

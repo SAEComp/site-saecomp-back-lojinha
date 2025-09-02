@@ -54,11 +54,16 @@ export const addProductData = async(inSchema: ICAddProductInSchema): Promise<num
         await client.query('COMMIT');
     }
     catch(error){
+
+        // Em caso de erro, desfaz todas as querys realizadas
         await client.query('ROLLBACK');
         throw error;
     }
     finally{
+
+        // Libera a conexão com o banco de dados
         client.release();
+        
     }
 
     return returned;
