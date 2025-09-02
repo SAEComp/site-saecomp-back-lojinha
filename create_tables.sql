@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS buy_orders(
 	users_id		INT 				NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	date			DATE 				NOT NULL DEFAULT CURRENT_DATE,
 	status			status_t			NOT NULL DEFAULT 'cart',
-	CONSTRAINT 		unique_user_cart 	UNIQUE (users_id, status)
 );
 
 CREATE TABLE IF NOT EXISTS items(

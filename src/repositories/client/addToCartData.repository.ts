@@ -17,7 +17,6 @@ const dbQuerySearchCart = `
 const dbQueryCreateCart = `
     INSERT INTO buy_orders (users_id, date, status)
     VALUES ($1, CURRENT_DATE, 'cart')
-    ON CONFLICT (users_id, status) DO NOTHING
     RETURNING id
 `;
 
@@ -74,20 +73,33 @@ export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchem
             if(cart_id === undefined){
                 cart_id = (await client.query(dbQueryCreateCart, [user_id])).rows[0]?.id;
             }
-            
+
+            // Se ainda assim o carrinho não existir, retorna null (erro inesperado)
+            if(cart_id === undefined){
+                await client.query('ROLLBACK');
+                return null;
+            }
+
             /* 
                 Verificação da existência do item que conecta carrinho ao produto, se existir é atualizado
                 e, caso não exista, é criado
             */
             item_id = (await client.query(dbQuerySearchItem, [cart_id, inSchema.product_id])).rows[0]?.id;
             if(item_id === undefined){
-                await client.query(dbQueryCreateItem, [inSchema.product_id, cart_id, inSchema.quantity]);
+                qntItensUpdated = (await client.query(dbQueryCreateItem, [inSchema.product_id, cart_id, inSchema.quantity])).rowCount;
             }
             else{
-                await client.query(dbQueryUpdateItems, [inSchema.quantity, user_id, inSchema.product_id]);
+                qntItensUpdated = (await client.query(dbQueryUpdateItems, [inSchema.quantity, user_id, inSchema.product_id])).rowCount;
             }
 
-            returned = 1;
+            // Se não foi possível criar ou atualizar o item, retorna null (erro inesperado)
+            if(qntItensUpdated === 0){
+                await client.query('ROLLBACK');
+                return null;
+            }
+
+            // Se tudo ocorreu bem, retorna a quantidade de itens atualizados (1)
+            returned  = qntItensUpdated;
         }
 
         // Finaliza transação com BD
