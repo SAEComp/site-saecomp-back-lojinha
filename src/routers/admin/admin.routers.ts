@@ -7,10 +7,10 @@ import getBuyOrderPage from "../../controllers/admin/getBuyOrderPage.controller"
 // Instanciação do express
 const adminRounter = express.Router();
 
-adminRounter.post('/adicionarProduto', addProduct);
-adminRounter.post('/editarProduto', editProduct);
-adminRounter.delete('/removerProduto', removeProduct)
-adminRounter.get('/exibirPedidos', getBuyOrderPage);
+adminRounter.post('/produto', addProduct);
+adminRounter.put('/produto', editProduct);
+adminRounter.delete('/produto', removeProduct)
+adminRounter.get('/historico-pedidos', getBuyOrderPage);
 
 // Definição do tratamento de requisições
 export default adminRounter;

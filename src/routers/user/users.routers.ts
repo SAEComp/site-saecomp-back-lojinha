@@ -5,18 +5,18 @@ import addToCart from "../../controllers/client/addToCart.controller";
 import addComment from "../../controllers/client/addComent.controller";
 import finishBuy from "../../controllers/client/finishBuy.controller";
 import registerPayment from "../../controllers/client/registerPayment.controller";
-import getBuyOrder from "../../controllers/client/getBuyOrder.controller";
+import getCart from "../../controllers/client/getCart.controller";
 
 // Instanciação do express
 const userRounter = express.Router();
 
 // Definição do tratamento de requisições
 userRounter.get("/", getProductPage);
-userRounter.get("/detalhesProduto", getProduct);
-userRounter.get("/detalhesPedido", getBuyOrder);
-userRounter.post("/adicionarCarrinho", addToCart);
-userRounter.post("/adicionarComentario", addComment);
-userRounter.post("/finalizarCompra", finishBuy);
-userRounter.post("/registrarPagamento", registerPayment);
+userRounter.get("/produto", getProduct);
+userRounter.get("/carrinho", getCart);
+userRounter.post("/carrinho", addToCart);
+userRounter.post("/comentario", addComment);
+userRounter.post("/finalizar-pedido", finishBuy);
+userRounter.post("/pagar-pedido", registerPayment);
 
 export default userRounter;
