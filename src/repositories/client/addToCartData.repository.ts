@@ -87,20 +87,26 @@ export const addtoCartData = async(user_id: number, inSchema: ICAddToCartInSchem
             */
             itemId = (await client.query(dbQuerySearchItem, [cartId, inSchema.product_id])).rows[0]?.id;
             if(itemId === undefined){
+                
                 itemId = (await client.query(dbQueryCreateItem, [inSchema.product_id, cartId, inSchema.quantity])).rows[0]?.id;
+                
+                if(itemId === undefined){
+                    await client.query('ROLLBACK');
+                    return null;
+                }
             }
             else{
+                
                 qntItensUpdated = (await client.query(dbQueryUpdateItems, [inSchema.quantity, user_id, inSchema.product_id])).rowCount;
+                
+                if(qntItensUpdated === 0){
+                    await client.query('ROLLBACK');
+                    return null;
+                }
             }
 
-            // Se não foi possível criar ou atualizar o item, retorna null (erro inesperado)
-            if(itemId === undefined || qntItensUpdated === 0){
-                await client.query('ROLLBACK');
-                return null;
-            }
-
-            // Se tudo ocorreu bem, retorna a quantidade de itens atualizados (1)
-            returned  = qntItensUpdated;
+            // Se tudo ocorreu bem, retorna sucesso
+            returned  = 1;
         }
 
         // Finaliza transação com BD

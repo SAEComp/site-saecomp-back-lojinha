@@ -4,7 +4,7 @@ import { ICGetBuyOrderOutSchema } from "../../schemas/lojinha/output/getBuyOrder
 
 const dbQueryGetBuyOrderById = `
     SELECT * FROM buy_orders 
-    WHERE id = $1 AND
+    WHERE id = $1
 `;
 
 const getBuyOrdedbQueryBuyOrderByStatus = `

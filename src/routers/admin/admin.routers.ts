@@ -10,7 +10,7 @@ const adminRounter = express.Router();
 adminRounter.post('/adicionarProduto', addProduct);
 adminRounter.post('/editarProduto', editProduct);
 adminRounter.delete('/removerProduto', removeProduct)
-adminRounter.get('/obterPedidos', getBuyOrderPage);
+adminRounter.get('/exibirPedidos', getBuyOrderPage);
 
 // Definição do tratamento de requisições
 export default adminRounter;

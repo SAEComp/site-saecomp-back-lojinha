@@ -5,7 +5,7 @@ import { getBuyOrderInSchema } from "../../schemas/lojinha/input/getBuyOrderIn.s
 import { getBuyOrderOutSchema } from "../../schemas/lojinha/output/getBuyOrderOut.schema";
 import { ICGetBuyOrderOutSchema } from "../../schemas/lojinha/output/getBuyOrderOut.schema"; 
 
-const getProduct = async(req: Request, res: Response): Promise<void> => {
+const getBuyOrder = async(req: Request, res: Response): Promise<void> => {
     try{
         // Pedido a ser retornado
         let buyOrder : ICGetBuyOrderOutSchema | undefined;
@@ -24,7 +24,7 @@ const getProduct = async(req: Request, res: Response): Promise<void> => {
             const userId = req.userId;
             
             // Verificação se id do usuário está disponível
-            if(userId !== undefined){
+            if(userId === undefined){
                 throw new ApiError(404, 'Usuário não encontrado');
             }
             
@@ -58,4 +58,4 @@ const getProduct = async(req: Request, res: Response): Promise<void> => {
     }
 }
 
-export default getProduct
+export default getBuyOrder
