@@ -4,7 +4,7 @@ BEGIN
         CREATE TYPE category_t AS ENUM('sweet', 'salty', 'drink');
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status_t') THEN
-        CREATE TYPE status_t AS ENUM('cart', 'pendingPayment', 'finishedPayment');
+        CREATE TYPE status_t AS ENUM('cart', 'pendingPayment', 'canceled' ,'finishedPayment');
     END IF;
 END$$;
 

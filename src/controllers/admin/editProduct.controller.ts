@@ -9,24 +9,19 @@ import { editProductData } from "../../repositories/admin/editProductData.reposi
     via id do produto
 */
 const editProduct = async(req: Request, res: Response): Promise<void> => {
-    try{
+ 
+    // Obtenção e validação dos dados de entrada
+    const body = editProductInSchema.parse(req.body);
 
-        // Obtenção e validação dos dados de entrada
-        const body = editProductInSchema.parse(req.body);
+    // Edição do produto no banco de dados e obtenção da quantidade de produtos editados
+    const qntEdits = await editProductData({product_id:body.product_id, bar_code: body.bar_code, name: body.name, value: body.value, description:body.description, quantity: body.quantity, category: body.category, img_url: body.img_url});
 
-        // Edição do produto no banco de dados e obtenção da quantidade de produtos editados
-        const qntEdits = await editProductData({product_id:body.product_id, bar_code: body.bar_code, name: body.name, value: body.value, description:body.description, quantity: body.quantity, category: body.category, img_url: body.img_url});
+    // Se nenhum produto foi editado, lança um erro 404 (produto não encontrado)
+    if(!qntEdits) throw new ApiError(404, 'Produto não encontrado');
 
-        // Se nenhum produto foi editado, lança um erro 404 (produto não encontrado)
-        if(!qntEdits) throw new ApiError(404, 'Produto não encontrado');
+    // Resposta de sucesso
+    res.status(200).json({message: 'Produto editado com sucesso'});
 
-        // Resposta de sucesso
-        res.status(200).json({message: 'Produto editado com sucesso'});
-    }
-    catch(error){
-        console.log(error);
-        res.status(500).json({message: 'Erro interno no servidor'});
-    }
 }
 
 export default editProduct;
