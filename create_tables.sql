@@ -21,7 +21,7 @@ END$$;
 CREATE TABLE IF NOT EXISTS products(
 	id				BIGSERIAL 		PRIMARY KEY,
 	name 			TEXT 			NOT NULL,
-	value			REAL			NOT NULL,
+	value			REAL			CHECK(value >= 0),
 	description		TEXT			NOT NULL,
 	quantity		INTEGER			CHECK(quantity >= 0),
 	bar_code		CHAR(13)		UNIQUE ,
@@ -34,12 +34,13 @@ CREATE TABLE IF NOT EXISTS entry_histories(
 	id				BIGSERIAL	PRIMARY KEY,
 	product_id		INT 		NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
 	date			DATE 		NOT NULL DEFAULT CURRENT_DATE,
+	value			REAL		CHECK(value >= 0),
 	quantity		INTEGER		CHECK(quantity >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS buy_orders(
 	id				BIGSERIAL			PRIMARY KEY,
-	user_id			INT 				NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	user_id			INT 				REFERENCES users(id) ON DELETE CASCADE,
 	date			DATE 				NOT NULL DEFAULT CURRENT_DATE,
 	status			status_t			NOT NULL DEFAULT 'cart'
 );
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS items(
 	product_id		INT						NOT NULL REFERENCES products(id) ON DELETE CASCADE,
 	buy_order_id	INT 					NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
 	quantity		INTEGER					CHECK(quantity >= 0),
+	value			REAL					CHECK(value >= 0),
 	CONSTRAINT 		unique_cart_product 	UNIQUE (buy_order_id, product_id)
 );
 
@@ -56,4 +58,10 @@ CREATE TABLE IF NOT EXISTS comments(
 	id				BIGSERIAL		PRIMARY KEY,
 	user_id			INT 			NOT NULL REFERENCES users(id),
 	content			TEXT			NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pontuation(
+	id				BIGSERIAL		PRIMARY KEY,
+	user_id			INT 			NOT NULL REFERENCES users(id),
+	score			INTEGER			CHECK(score >= 0) NOT NULL
 );
