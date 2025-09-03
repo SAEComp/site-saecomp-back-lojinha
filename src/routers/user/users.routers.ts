@@ -11,7 +11,7 @@ import getCart from "../../controllers/client/getCart.controller";
 const userRounter = express.Router();
 
 // Definição do tratamento de requisições
-userRounter.get("/", getProductPage);
+userRounter.get("/produtos", getProductPage);
 userRounter.get("/produto", getProduct);
 userRounter.get("/carrinho", getCart);
 userRounter.post("/carrinho", addToCart);
