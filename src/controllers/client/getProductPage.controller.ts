@@ -2,13 +2,13 @@ import { Request, Response} from "express";
 import { ApiError } from "../../errors/ApiError";
 import { getProductPageDataWithoutCategory, getProductPageDataWithCategory } from "../../repositories/client/getProductPageData.repository";
 import { getProductPageInSchema } from "../../schemas/lojinha/input/getProductPageIn.schema";
-import { getProductOutSchema } from "../../schemas/lojinha/output/getProductOut.schema";
-import { ICGetProductOutSchema } from "../../schemas/lojinha/output/getProductOut.schema";
+import { getProductPageOutArraySchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
+import { ICGetProductPageOutArraySchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
 
 const getProductPage = async(req: Request, res: Response): Promise<void> => {
 
     // Vetor de produtos a serem retornados na requisição
-    var products : ICGetProductOutSchema [];
+    var products : ICGetProductPageOutArraySchema;
     
     // Obtenção da query enviada na requisição
     const query = await getProductPageInSchema.parse(req.query);
@@ -27,7 +27,7 @@ const getProductPage = async(req: Request, res: Response): Promise<void> => {
     }
     
     // Valida os produtos obtidos com o schema de saída
-    const safedProducts = getProductOutSchema.array().parse(products); 
+    const safedProducts = getProductPageOutArraySchema.array().parse(products); 
 
     // Retorna produtos validados
     res.status(200).json(safedProducts)

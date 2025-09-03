@@ -2,12 +2,12 @@ import { Request, Response} from "express";
 import { ApiError } from "../../errors/ApiError";
 import { getBuyOrderPageDataWithoutStatus, getBuyOrderPageDataWithStatus } from "../../repositories/admin/getBuyOrderPageData.repository";
 import { getBuyOrderPageInSchema } from "../../schemas/lojinha/input/getBuyOrderPageIn.schema";
-import { ICGetBuyOrderOutSchema, getBuyOrderOutSchema } from "../../schemas/lojinha/output/getBuyOrderOut.schema";
+import { ICGetBuyOrderPageOutArraySchema, getBuyOrderPageOutArraySchema } from "../../schemas/lojinha/output/getBuyOrderPageOut.schema";
 
 const getBuyOrderPage = async(req: Request, res: Response): Promise<void> => {
 
     // Vetor de produtos a serem retornados na requisição
-    let buyOrderPage : ICGetBuyOrderOutSchema [];
+    let buyOrderPage : ICGetBuyOrderPageOutArraySchema;
     
     // Obtenção da query enviada na requisição
     const query = await getBuyOrderPageInSchema.parse(req.query);
@@ -26,7 +26,7 @@ const getBuyOrderPage = async(req: Request, res: Response): Promise<void> => {
     }
     
     // Valida os produtos obtidos com o schema de saída
-    const safedBuyOrderpage = getBuyOrderOutSchema.array().parse(buyOrderPage); 
+    const safedBuyOrderpage = getBuyOrderPageOutArraySchema.array().parse(buyOrderPage); 
 
     // Retorna produtos validados
     res.status(200).json(safedBuyOrderpage)
