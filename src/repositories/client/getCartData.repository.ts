@@ -33,7 +33,8 @@ const dbQueryUpdateItemsValue = `
 `;
 
 const dbQueryGetItems = `
-    SELECT 
+    SELECT
+        i.id AS "id", 
         i.product_id AS "productId",
         p.name AS "productName",
         p.quantity AS "productStock",
@@ -44,7 +45,7 @@ const dbQueryGetItems = `
     WHERE i.buy_order_id = $1
 `;
 
-const getCartData = async (user_id: number): Promise<ICGetCartOutSchema | null> => {
+export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema | null> => {
 
     // Variáveis de controle
     let changedCart: boolean = false;
@@ -121,5 +122,3 @@ const getCartData = async (user_id: number): Promise<ICGetCartOutSchema | null> 
     // Retorna carrinho
     return cart;
 };
-
-export { getCartData }
