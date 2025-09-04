@@ -6,23 +6,22 @@ import { addToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.schem
 const addToCart = async(req: Request, res: Response): Promise<void> =>{
     
     // Validação do body de entrada
-    const body =  await addToCartInSchema.parse(req.body);
+    const body =  addToCartInSchema.safeParse(req.body);
 
+    // Verificação de erros na validação
+    if(!body.success) throw new ApiError(400, body.error.message);
+    
     // Verificação se o usuário está autenticado
-    if(req.userId === undefined){
-        throw new ApiError(404, "Usuário não encontrado");
-    }
-
+    if(req.userId === undefined) throw new ApiError(404, "Usuário não encontrado");
+    
     // Adiciona produto ao carrinho
-    const result : number | null = await addtoCartData(req.userId, {product_id: body.product_id, quantity: body.quantity});
+    const cartId  = await addtoCartData(req.userId, body.data);
 
-    // Verifica se a quantidade solicitada é maior que a disponível em estoque
-    if(!result){
-        throw new ApiError(404, 'Quantidade solicitada maior que a disponível em estoque');          
-    }
-
+    // Verificação se o produto foi adicionado ao carrinho
+    if(!cartId) throw new ApiError(500, 'Erro ao adicionar produto no carrinho');
+    
     // Retorno de sucesso
-    res.status(200).json({message: 'Produto adicionado com sucesso no carrinho'});
+    res.status(200).json(cartId);
     
 } 
 
