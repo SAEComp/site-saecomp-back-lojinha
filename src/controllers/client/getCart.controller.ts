@@ -7,7 +7,7 @@ import { ICGetCartOutSchema } from "../../schemas/lojinha/output/getCartOut.sche
 const getCart = async(req: Request, res: Response): Promise<void> => {
 
     // Pedido a ser retornado
-    let buyOrder : ICGetCartOutSchema;
+    let cart : ICGetCartOutSchema | null;
     
     // Busca carrinho pelo status em conjunto com o id do usuário
     const userId = req.userId;
@@ -15,17 +15,17 @@ const getCart = async(req: Request, res: Response): Promise<void> => {
     // Verificação se id do usuário está disponível
     if(userId === undefined) throw new ApiError(404, 'Usuário não encontrado');
     
-    // Busca pedido pelo status e id do usuário
-    buyOrder = await getCartData(userId);
+    // Busca carrinho pelo status('cart') e id do usuário
+    cart = await getCartData(userId);
     
-    // Verificação se pedido foi encontrado
-    if(!buyOrder || buyOrder.items.length === 0) throw new ApiError(404, 'Produto não encontrado');
+    // Verificação se carrinho foi encontrado
+    if(!cart || cart.items.length === 0) throw new ApiError(404, 'Carrinho vazio');
     
     // Validação do pedido a ser retornado
-    const safedBuyOrder = getCartOutSchema.parse(buyOrder); 
+    const safedCart = getCartOutSchema.parse(cart); 
     
     // Retorno do pedido
-    res.status(200).json(safedBuyOrder);
+    res.status(200).json(safedCart);
 
 }
 
