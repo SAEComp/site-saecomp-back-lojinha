@@ -7,23 +7,19 @@ import { ICGetCartOutSchema } from "../../schemas/lojinha/output/getCartOut.sche
 const getCart = async(req: Request, res: Response): Promise<void> => {
 
     // Pedido a ser retornado
-    let buyOrder : ICGetCartOutSchema | undefined;
+    let buyOrder : ICGetCartOutSchema;
     
     // Busca carrinho pelo status em conjunto com o id do usuário
     const userId = req.userId;
     
     // Verificação se id do usuário está disponível
-    if(userId === undefined){
-        throw new ApiError(404, 'Usuário não encontrado');
-    }
+    if(userId === undefined) throw new ApiError(404, 'Usuário não encontrado');
     
     // Busca pedido pelo status e id do usuário
     buyOrder = await getCartData(userId);
     
     // Verificação se pedido foi encontrado
-    if(!buyOrder){
-        throw new ApiError(404, 'Produto não encontrado');
-    }
+    if(!buyOrder || buyOrder.items.length === 0) throw new ApiError(404, 'Produto não encontrado');
     
     // Validação do pedido a ser retornado
     const safedBuyOrder = getCartOutSchema.parse(buyOrder); 

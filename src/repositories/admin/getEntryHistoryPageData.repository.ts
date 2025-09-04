@@ -66,8 +66,10 @@ export const getEntryHistoryPageData = async (inSchema: ICGetEntryHistoryPageInS
     params.push(pageSize, (page - 1) * pageSize);
 
     // Executa a query com filtros e paginação
-    const entryHistories = (await pool.query(dbQueryGetEntryHistoryPage, params)).rows;
+    const entryHistoryPage: ICGetEntryHistoryPageOutSchema = { 
+        entryHistory: (await pool.query(dbQueryGetEntryHistoryPage, params)).rows
+    };
 
     // Retorna os dados
-    return entryHistories;
+    return entryHistoryPage;
 };

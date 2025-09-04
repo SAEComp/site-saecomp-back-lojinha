@@ -118,7 +118,7 @@ export const getBuyOrderPageData = async (inSchema: ICGetBuyOrderPageInSchema): 
 
     // Mapea saída conforme o esquema de saída
     const buyOrders: ICGetBuyOrderPageOutSchema = { 
-        buyOrders: orders.map(order => ({
+        buyOrder: orders.map(order => ({
 
             id: order.id,
             userName: order.userName,
@@ -127,11 +127,11 @@ export const getBuyOrderPageData = async (inSchema: ICGetBuyOrderPageInSchema): 
             totalValue: Number(order.totalValue),
 
             // Filtra itens pertencentes ao pedido atual (já que a query de itens não está associada diretamente a um pedido específico)
-            items: items.filter(item => item.buyOrderId == order.id).map(item => ({
+            item: items.filter(item => item.buyOrderId == order.id).map(item => ({
                     productName: item.productName,
                     quantity: item.quantity,
                     value: item.value
-                }))
+            }))
         }))
     };
 
