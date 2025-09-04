@@ -58,6 +58,8 @@ export const getBuyOrderPageData = async (inSchema: ICGetBuyOrderPageInSchema): 
     // Adiciona filtros opicionai caso estejam presentes na requisição
     if (filters.length > 0) {
         query += " WHERE " + filters.join(" AND ");
+
+        // Pedidos em estado de carrinho são desconsiderados
         query += " AND bo.status != 'cart' ";
     } else {
         query += " WHERE bo.status != 'cart' ";

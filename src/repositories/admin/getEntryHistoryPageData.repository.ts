@@ -5,29 +5,33 @@ import { ICGetEntryHistoryPageOutSchema } from "../../schemas/lojinha/output/get
 export const getEntryHistoryPageData = async (inSchema: ICGetEntryHistoryPageInSchema): Promise<ICGetEntryHistoryPageOutSchema> => {
   
     // Desestrutura os parâmetros de entrada
-    const { page, pageSize, productName, value, quantity, date } = inSchema;
+    const { page, pageSize, productName, value, quantity, dateMin, dateMax } = inSchema;
 
     // Monta filtros dinâmicos
     const filters: string[] = [];
     const params: any[] = [];
 
     // Adiciona filtros conforme os parâmetros fornecidos
-    if (productName) {
+    if(productName != undefined) {
         // Usa ILIKE para busca case-insensitive e parcial
         filters.push("p.name ILIKE $" + (params.length + 1));
         params.push(`%${productName}%`);
     }
-    if (value) {
+    if(value != undefined) {
         filters.push("eh.value = $" + (params.length + 1));
         params.push(value);
     }
-    if (quantity !== undefined) { // pode ser inicialmente zero
+    if(quantity != undefined) { // pode ser inicialmente zero
         filters.push("eh.quantity = $" + (params.length + 1));
         params.push(quantity);
     }
-    if (date) {
-        filters.push("eh.date = $" + (params.length + 1));
-        params.push(date);
+    if(dateMin != undefined) {
+        filters.push("eh.date >= $" + (params.length + 1));
+        params.push(dateMin);
+    }
+    if(dateMax != undefined){
+        filters.push("eh.date <= $" + (params.length + 1));
+        params.push(dateMax);
     }
 
     // Monta a query base

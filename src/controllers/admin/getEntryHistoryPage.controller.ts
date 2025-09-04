@@ -15,7 +15,8 @@ const getEntryHistoryPage = async (req: Request, res: Response) => {
     const outData = await getEntryHistoryPageData(query.data);
 
     // Verificação se há dados a serem retornados
-    if(!outData || outData.length === 0) throw new ApiError(404, 'Nenhum histórico de entrada encontrado');
+    if(!outData || outData.length === 0) 
+        throw new ApiError(404, 'Nenhum histórico de entrada encontrado');
     
     // Retorno dos dados
     res.status(200).json(outData);
