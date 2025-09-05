@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS comments(
 	content			TEXT			NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS ponctuation(
+CREATE TABLE IF NOT EXISTS punctuation(
 	id				BIGSERIAL		PRIMARY KEY,
 	user_id			INT 			NOT NULL REFERENCES users(id),
 	score			INTEGER			CHECK(score >= 0) NOT NULL

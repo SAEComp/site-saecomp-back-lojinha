@@ -19,13 +19,13 @@ const dbQueryGetTotalValueOfOrder = `
 `;
 
 const dbQueryUpdateUserScore = `
-    UPDATE ponctuation
+    UPDATE punctuation
     SET score = $1
     WHERE user_id = $2
 `;
 
 const dbQueryCreateUserPonctuation = `
-    INSERT INTO ponctuation (user_id, score)
+    INSERT INTO punctuation (user_id, score)
     VALUES ($1, $2)
     RETURNING id
 `;
@@ -35,7 +35,7 @@ export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): P
     // Variáveis de controle
     let userId : number|undefined = 0
     let totalValue : number|undefined = 0;
-    let qntPonctuationUpdate : number|null = 0;
+    let qntPunctuationUpdate : number|null = 0;
     let ponctuationId : number|undefined = 0;
     let score : number = 0;
 
@@ -67,10 +67,10 @@ export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): P
         score = totalValue * 100;
 
         // Atualização da pontuação do usuário
-        qntPonctuationUpdate = (await client.query(dbQueryUpdateUserScore, [score, userId])).rowCount;
+        qntPunctuationUpdate = (await client.query(dbQueryUpdateUserScore, [score, userId])).rowCount;
         
         // Se não houver pontuação, cria uma nova
-        if(!qntPonctuationUpdate){
+        if(!qntPunctuationUpdate){
             
             ponctuationId = (await client.query(dbQueryCreateUserPonctuation, [userId, score])).rows[0]?.id;
             if(!ponctuationId){
