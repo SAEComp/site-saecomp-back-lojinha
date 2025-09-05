@@ -1,11 +1,20 @@
 import pool from "../../database/connection";
 import { ICEditProductInSchema } from "../../schemas/lojinha/input/editProductIn.schema";
 
+const dbQueryGetOldProductQuantity = `
+    SELECT 
+        quantity AS "oldQuantity",
+        value AS "oldValue" 
+    FROM products 
+    WHERE id = $1
+`;
+
 const dbQueryAddEntryHistorie = `
-    INSERT INTO entry_histories (product_id, quantity)
-    VALUES ($1, $2)
+    INSERT INTO entry_histories (product_id, quantity, value)
+    VALUES ($1, $2, $3)
     RETURNING id
 `;
+
 
 /* 
     Observe que quando a utilização do código de barras for eficientemente implementada,
@@ -14,6 +23,7 @@ const dbQueryAddEntryHistorie = `
 */
 export const editProductData = async(inSchema: ICEditProductInSchema): Promise<number|null> =>{
     
+    // Variáveis de controle
     let qntEditedProducts: number|null = 0;
     let entryHistoryId: number|undefined = 0;
 
@@ -40,13 +50,13 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
         updateIndex.push(' quantity = $' + (values.length + 1));
         values.push(inSchema.quantity);
     }
-    if(inSchema.bar_code !== undefined){
+    if(inSchema.barCode !== undefined){
         updateIndex.push(' bar_code = $' + (values.length + 1));
-        values.push(inSchema.bar_code ?? null);
+        values.push(inSchema.barCode ?? null);
     }
-    if(inSchema.img_url !== undefined){
+    if(inSchema.imgUrl !== undefined){
         updateIndex.push(' img_url = $' + (values.length + 1));
-        values.push(inSchema.img_url);
+        values.push(inSchema.imgUrl);
     }
     if(inSchema.category !== undefined){
         updateIndex.push(' category = $' + (values.length + 1));
@@ -58,7 +68,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
 
     // Adiciona o id ao final dos valores para a cláusula WHERE
     const idParamIndex: number = values.length + 1;
-    values.push(inSchema.product_id); 
+    values.push(inSchema.productId); 
 
     // Query de atualização dinâmica
     const dbQueryEditProduct = `
@@ -74,29 +84,42 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
         // Início de transação
         await client.query('BEGIN');
 
+        /* 
+            Se a quantidade do produto foi atualizada, adiciona um registro na tabela entry_histories
+            e verifica o sucesso da inserção
+        */
+        if(inSchema.quantity !== undefined){
+           
+            // Obtém a quantidade antiga do produto
+            const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [inSchema.productId])).rows[0];
+            if(!oldQuantity || !oldValue){
+               await client.query('ROLLBACK');
+               return null;
+            }
+            
+            // Se o valor do produto foi atualizado, utiliza o novo valor; caso contrário, utiliza o valor antigo
+            const newValue: number = inSchema.value !== undefined ? inSchema.value : oldValue;
+            
+            // Obtençaõ de quantidade líquida (permiti verificar roubos na loja física)
+            const newQuantity: number = (oldQuantity > inSchema.quantity) ? inSchema.quantity - oldQuantity : oldQuantity - inSchema.quantity;
+                        
+            // Obtem o id do registro de adição de produto inserido
+            entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [inSchema.productId, newQuantity, newValue])).rows[0]?.id
+            
+            // Verifica se a inserção foi bem sucedida
+            if(!entryHistoryId){
+                await client.query('ROLLBACK');
+                return null;
+            }
+        }
+
         // Executa edição de produto, retorna o número de linhas afetadas e verificando sucesso da edição
         qntEditedProducts = (await client.query(dbQueryEditProduct, values)).rowCount;
         if(!qntEditedProducts){
             await client.query('ROLLBACK');
             return null;
         }
-
-        /* 
-            Se a quantidade do produto foi atualizada, adiciona um registro na tabela entry_histories
-            e verifica o sucesso da inserção
-        */
-        if(inSchema.quantity !== undefined){
-            
-            // Obtem o id do registro de adição de produto inserido
-            entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [inSchema.product_id, inSchema.quantity])).rows[0]?.id
-            
-            // Verifica se a inserção foi bem sucedida
-            if(entryHistoryId === undefined){
-                await client.query('ROLLBACK');
-                return null;
-            }
-        }
-
+        
         // Confirma a transação
         await client.query('COMMIT');
     }

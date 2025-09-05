@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS entry_histories(
 	id				BIGSERIAL	PRIMARY KEY,
 	product_id		INT 		NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
 	date			DATE 		NOT NULL DEFAULT CURRENT_DATE,
-	value			REAL		CHECK(value >= 0),
-	quantity		INTEGER		CHECK(quantity >= 0)
+	value			REAL		CHECK(value >= 0) NOT NULL,
+	quantity		INTEGER		NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS buy_orders(
