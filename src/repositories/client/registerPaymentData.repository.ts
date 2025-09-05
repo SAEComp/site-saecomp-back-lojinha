@@ -1,6 +1,7 @@
 import pool from "../../database/connection"; 
 import { ICRegisterPaymentInSchema } from "../../schemas/lojinha/input/registerPaymentIn.schema";
 import { ICRegisterPaymentOutSchema } from "../../schemas/lojinha/output/registerPaymentOut.schema";
+import { ApiError } from "../../errors/ApiError";
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -46,14 +47,14 @@ export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): P
         const userId = (await client.query(dbQuerySetBuyOrderToFinalized, [orderKey.buyOrderId])).rows[0]?.userId;
         if(!userId){
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(404, 'Pedido não encontrado ou já finalizado');
         }
 
         // Cálculo do valor total gasto pelo usuário 
         const totalValue = (await client.query(dbQueryGetTotalValueOfOrder, [orderKey.buyOrderId])).rows[0]?.totalValue;
         if(!totalValue){
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(404, 'O pedido não possui itens válidos');
         }
 
         // 1 real <=> 100 pontos
@@ -68,7 +69,7 @@ export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): P
             const punctuationId = (await client.query(dbQueryCreateUserPunctuation, [userId, score])).rows[0]?.id;
             if(!punctuationId){
                 await client.query('ROLLBACK');
-                return null;
+                throw new ApiError(404, 'Não foi possível atualizar a pontuação do usuário');
             }
         }
 

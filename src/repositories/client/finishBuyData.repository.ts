@@ -1,5 +1,7 @@
 import pool from "../../database/connection";
 import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
+import { ApiError } from "../../errors/ApiError";
+import { th } from "zod/v4/locales/index.cjs";
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -55,14 +57,14 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
         qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [buyKey.buyOrderId])).rowCount;
         if(!qntUpdatedBuyOrders){
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(404, 'Pedido não encontrado');
         }
 
         // Busca os itens do pedido, se não encontrar nenhum item, retorna null
         items = (await client.query(dbQuerySearchItemsInBuyOrder, [buyKey.buyOrderId])).rows;
         if(items.length === 0){
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(404, 'O pedido não possui itens válidos');
         }
 
         // Atualiza a quantidade dos produtos no estoque, se não conseguir atualizar algum produto, retorna o id do produto negativo

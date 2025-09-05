@@ -61,7 +61,8 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
 
         // Pedidos em estado de carrinho são desconsiderados
         query += " AND bo.status != 'cart' ";
-    } else {
+    } 
+    else {
         query += " WHERE bo.status != 'cart' ";
     }
 

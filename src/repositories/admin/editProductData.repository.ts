@@ -1,5 +1,7 @@
 import pool from "../../database/connection";
 import { ICEditProductInSchema } from "../../schemas/lojinha/input/editProductIn.schema";
+import { ApiError } from "../../errors/ApiError";
+import { th } from "zod/v4/locales/index.cjs";
 
 const dbQueryGetOldProductQuantity = `
     SELECT 
@@ -95,7 +97,7 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
              const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [product.productId])).rows[0];
             if(oldQuantity === undefined || oldQuantity === null || oldValue === undefined || oldValue === null){
                await client.query('ROLLBACK');
-               return null;
+               throw new ApiError(404, 'Produto não encontrado');
             }
             
             // Se o valor do produto foi atualizado, utiliza o novo valor; caso contrário, utiliza o valor antigo
@@ -110,7 +112,7 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
             // Verifica se a inserção foi bem sucedida
             if(!entryHistoryId){
                 await client.query('ROLLBACK');
-                return null;
+                throw new ApiError(404, 'Não foi possível registrar o histórico de entrada do produto');
             }
         }
 
@@ -118,7 +120,7 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
         qntEditedProducts = (await client.query(dbQueryEditProduct, values)).rowCount;
         if(!qntEditedProducts){
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(404, 'Produto não encontrado');
         }
         
         // Confirma a transação

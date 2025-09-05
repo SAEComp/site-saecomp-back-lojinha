@@ -1,6 +1,8 @@
 import pool from "../../database/connection";
 import { ICAddToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.schema";
 import { ICAddToCartOutSchema } from "../../schemas/lojinha/output/addToCartOut.schema";
+import { ApiError } from "../../errors/ApiError";
+import { th } from "zod/v4/locales/index.cjs";
 
 const dbQueryVerifyProduct = `
     SELECT 1 FROM products
@@ -69,7 +71,7 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
         // Se ainda assim o carrinho não existir, retorna null (erro inesperado)
         if(cartId === undefined){
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(500, 'Não foi possível criar o carrinho de compras');
         }
 
         // Variáveis de checagem de insuficiência de estoque
@@ -96,7 +98,7 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
                 // Se o item não foi criado, retorna null (erro inesperado)
                 if(itemId === undefined){
                     await client.query('ROLLBACK');
-                    return null;
+                    throw new ApiError(500, 'Não foi possível adicionar o item ao carrinho');
                 }
             }
             else{
@@ -106,7 +108,7 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
                 // Se o item não foi atualizado, retorna null (erro inesperado)
                 if(qntItensUpdated === 0){
                     await client.query('ROLLBACK');
-                    return null;
+                    throw new ApiError(500, 'Não foi possível atualizar o item no carrinho');
                 }
             }
 

@@ -49,7 +49,7 @@ export const getEntryHistoryPageData = async (pageSettings: ICGetEntryHistoryPag
 
     // Adiciona filtros se existirem
     if (filters.length > 0) {
-    dbQueryGetEntryHistoryPage += " WHERE " + filters.join(" AND ");
+        dbQueryGetEntryHistoryPage += " WHERE " + filters.join(" AND ");
     }
 
     // Adiciona ordenação por data decrescente

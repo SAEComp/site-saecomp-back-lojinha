@@ -56,7 +56,7 @@ export const addProductData = async(product: ICAddProductInSchema): Promise<ICAd
         const productId  = (await client.query(dbQueryAddProduct, values)).rows[0]?.id;
         if(!productId){
             await client.query('ROLLBACK');
-            return null;
+            throw new Error('Não foi possível adicionar o produto (código de barras já existente)');
         }
 
         /* 
@@ -66,7 +66,7 @@ export const addProductData = async(product: ICAddProductInSchema): Promise<ICAd
         const entryHistoryId = (await client.query(dbQueryAddEntryHistory, [productId, product.quantity, product.value])).rows[0]?.id;
         if(!entryHistoryId){
             await client.query('ROLLBACK');
-            return null;
+            throw new Error('Não foi possível registrar o histórico de entrada do produto');
         }
 
         // Se tudo ocorreu bem, confirma a transação, retornando o id do produto adicionado
