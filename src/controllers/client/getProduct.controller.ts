@@ -10,31 +10,27 @@ const getProduct = async(req: Request, res: Response): Promise<void> => {
     // Produto a ser retornado
     let product : ICGetProductOutSchema | undefined;
     
-    // Validação de query de entrada
-    const query = await getProductInSchema.parse(req.query);
+    // Obtém os parâmetros da query
+    const query = getProductInSchema.safeParse(req.query);
+
+    // Verificação de erros na query
+    if(!query.success) throw new ApiError(404, query.error.message);
+
+    // Obtençaõ de id de produto e/ou código de barras passado na query
+    const {productId , barCode} = query.data;
     
     // Verificação de parâmetros passados na query são válidos
-    if((!query.bar_code && !query.product_id) || (query.bar_code && query.product_id)){
-        throw new ApiError(404, 'Parâmetros inválidos');
-        return ;
-    }
+    if((!productId) && (!barCode)) throw new ApiError(404, 'Parâmetros inválidos');
 
     // Busca produto pelo código de barras
-    if(query.bar_code != undefined){
-        product = await getProductDataByBarCode({bar_code: query.bar_code});
-    }
+    if(barCode) product = await getProductDataByBarCode(query.data);
     
     // Busca produto pelo id
-    if(query.product_id != undefined){
-        product = await getProductDataById({product_id: query.product_id});
-    }
+    if(productId) product = await getProductDataById(query.data);
     
     // Produto não encontrado
-    if(!product){
-        throw new ApiError(404, 'Produto não encontrado');
-        return ;
-    }
-    
+    if(!product) throw new ApiError(404, 'Produto não encontrado');
+
     // Validação do produto a ser retornado
     const safedProduct = getProductOutSchema.parse(product); 
     
