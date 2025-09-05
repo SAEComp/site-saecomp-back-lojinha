@@ -2,12 +2,8 @@ import { Request, Response} from "express";
 import { ApiError } from "../../errors/ApiError";
 import { getCartData } from "../../repositories/client/getCartData.repository";
 import { getCartOutSchema } from "../../schemas/lojinha/output/getCartOut.schema";
-import { ICGetCartOutSchema } from "../../schemas/lojinha/output/getCartOut.schema"; 
 
 const getCart = async(req: Request, res: Response): Promise<void> => {
-
-    // Pedido a ser retornado
-    let cart : ICGetCartOutSchema | null;
     
     // Busca carrinho pelo status em conjunto com o id do usuário
     const userId = req.userId;
@@ -16,7 +12,7 @@ const getCart = async(req: Request, res: Response): Promise<void> => {
     if(userId === undefined) throw new ApiError(404, 'Usuário não encontrado');
     
     // Busca carrinho pelo status('cart') e id do usuário
-    cart = await getCartData(userId);
+    const cart = await getCartData(userId);
     
     // Verificação se carrinho foi encontrado
     if(!cart || cart.items.length === 0) throw new ApiError(404, 'Carrinho vazio');

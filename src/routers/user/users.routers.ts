@@ -11,12 +11,12 @@ import getCart from "../../controllers/client/getCart.controller";
 const userRouter = express.Router();
 
 // Definição do tratamento de requisições
-userRouter.get("/produtos", getProductPage);
-userRouter.get("/produto", getProduct);
-userRouter.get("/carrinho", getCart);
-userRouter.post("/carrinho", addToCart);
-userRouter.post("/comentario", addComment);
-userRouter.post("/finalizar-pedido", finishBuy);
-userRouter.post("/pagar-pedido", registerPayment);
+userRouter.get("/products", getProductPage);
+userRouter.get("/product", getProduct);
+userRouter.get("/cart", getCart);
+userRouter.post("/cart", addToCart);
+userRouter.post("/comment", addComment);
+userRouter.post("/finish-order", finishBuy);
+userRouter.post("/pay-order", registerPayment);
 
 export default userRouter;

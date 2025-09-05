@@ -8,11 +8,11 @@ import getEntryHistoryPage from "../../controllers/admin/getEntryHistoryPage.con
 // Instanciação do express
 const adminRouter = express.Router();
 
-adminRouter.post('/produto', addProduct);
-adminRouter.put('/produto', editProduct);
-adminRouter.delete('/produto', removeProduct);
-adminRouter.get('/historico-pedidos', getBuyOrderPage);
-adminRouter.get('/historico-entradas', getEntryHistoryPage);
+adminRouter.post('/product', addProduct);
+adminRouter.put('/product', editProduct);
+adminRouter.delete('/product', removeProduct);
+adminRouter.get('/orders-history', getBuyOrderPage);
+adminRouter.get('/entries-history', getEntryHistoryPage);
 
 // Definição do tratamento de requisições
 export default adminRouter;
