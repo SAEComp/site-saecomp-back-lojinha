@@ -25,10 +25,7 @@ const finishBuy = async(req: Request, res: Response): Promise<void> => {
     // Se tudo ocorrer bem, o resultado inclui o valor total do pedido e os dados para pagamento via pix
     const outSchema : ICFinishBuyOutSchema = {
         totalValue: result,
-        //paymentData: { --- IGNORE ---
-            //qrCodeBase64: '', --- IGNORE ---
-            //pixCopiaECola: '' --- IGNORE ---
-        //} --- IGNORE ---
+        // TODO: Add paymentData with qrCodeBase64 and pixCopiaECola when available
     }
 
     // Validação do schema de saída
