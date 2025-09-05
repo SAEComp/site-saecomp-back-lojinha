@@ -1,6 +1,5 @@
 import pool from "../../database/connection";
 import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
-import { Item } from "../../interfaces/Item.interface";
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -10,10 +9,10 @@ const dbQuerySetBuyOrderToFinalized = `
 
 const dbQuerySearchItemsInBuyOrder = `
     SELECT 
-        i.id,
-        i.product_id,
-        i.buy_order_id,
-        i.quantity
+        i.id AS "id",
+        i.quantity AS "quantity",
+        i.product_id AS "productId",
+        i.value AS "value"
     FROM items i
     JOIN products p ON i.product_id = p.id
     WHERE i.buy_order_id = $1
@@ -27,15 +26,22 @@ const dbQueryUpdateProductAfterFinishedBuyOrder = `
         AND quantity >= $1
 `;
 
+/* 
+    Chamada da função de repositório para finalizar o pedido
+    A função retorna:
+        - null, se o pedido não existir ou estiver vazio
+        - número negativo, se algum produto estiver com quantidade insuficiente (o número negativo é o id do produto)
+        - número positivo, que é o valor total do pedido, se tudo ocorrer bem
+*/
 export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<number|null> =>{
 
     // Variáveis de controle
-    let returned: number|null = 0;
+    let totalValue: number = 0;
     let qntUpdatedBuyOrders: number|null = 0;
     let qntUpdatedProducts: number|null = 0;
     
     // Array para armazenar os itens do pedido
-    let items: Item[] = [];
+    let items: any[] = [];
 
     // Início da transação
     const client = await pool.connect();
@@ -46,14 +52,14 @@ export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<numbe
         await client.query('BEGIN');
 
         // Atualização do status do pedido, se não encontrar o pedido, retorna null
-        qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [inSchema.buy_order_id])).rowCount;
+        qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [inSchema.buyOrderId])).rowCount;
         if(!qntUpdatedBuyOrders){
             await client.query('ROLLBACK');
             return null;
         }
 
         // Busca os itens do pedido, se não encontrar nenhum item, retorna null
-        items = (await client.query(dbQuerySearchItemsInBuyOrder, [inSchema.buy_order_id])).rows;
+        items = (await client.query(dbQuerySearchItemsInBuyOrder, [inSchema.buyOrderId])).rows;
         if(items.length === 0){
             await client.query('ROLLBACK');
             return null;
@@ -62,13 +68,13 @@ export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<numbe
         // Atualiza a quantidade dos produtos no estoque, se não conseguir atualizar algum produto, retorna o id do produto negativo
         for(var i: number = 0; i < items.length; i++){
             
-            qntUpdatedProducts = (await client.query(dbQueryUpdateProductAfterFinishedBuyOrder, [items[i].quantity, items[i].product_id])).rowCount;
+            qntUpdatedProducts = (await client.query(dbQueryUpdateProductAfterFinishedBuyOrder, [items[i].quantity, items[i].productId])).rowCount;
             if(!qntUpdatedProducts){
                 await client.query('ROLLBACK');
-                return (-items[i].product_id);
+                return (-items[i].productId);
             }
             
-            returned ++;
+            totalValue += (items[i].value * items[i].quantity);
         }
 
         // Comando para finalizar a transação
@@ -90,7 +96,7 @@ export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<numbe
 
     }
 
-    // Retorna a quantidade de produtos atualizados, caso tenha atualizado todos os produtos
-    return returned;
+    // Retorna valor total do pedido
+    return totalValue;
 };
 

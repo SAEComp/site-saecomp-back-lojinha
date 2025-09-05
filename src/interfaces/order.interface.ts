@@ -1,6 +1,6 @@
 export interface Buy_order{
     id: number,
-    users_id: number,
+    usersId: number,
     date: string,
     status: string
 };

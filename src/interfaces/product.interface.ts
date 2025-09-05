@@ -10,8 +10,8 @@ export interface Product{
     value: number,
     description: string,
     quantity: number,
-    bar_code: string,
-    img_url : string,
+    barCode: string,
+    imgUrl : string,
     category: category_t
 };
 
