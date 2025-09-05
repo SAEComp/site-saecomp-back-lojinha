@@ -101,7 +101,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
             const newValue: number = inSchema.value !== undefined ? inSchema.value : oldValue;
             
             // Obtenção de quantidade líquida (permite verificar roubos na loja física)
-            const newQuantity: number = (oldQuantity > inSchema.quantity) ? inSchema.quantity - oldQuantity : oldQuantity - inSchema.quantity;
+            const newQuantity: number = inSchema.quantity - oldQuantity;
                         
             // Obtem o id do registro de adição de produto inserido
             entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [inSchema.productId, newQuantity, newValue])).rows[0]?.id
