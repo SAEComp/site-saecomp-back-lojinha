@@ -33,7 +33,7 @@ const dbQueryUpdateProductAfterFinishedBuyOrder = `
         - número negativo, se algum produto estiver com quantidade insuficiente (o número negativo é o id do produto)
         - número positivo, que é o valor total do pedido, se tudo ocorrer bem
 */
-export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<number|null> =>{
+export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|null> =>{
 
     // Variáveis de controle
     let totalValue: number = 0;
@@ -52,14 +52,14 @@ export const finishBuyData = async(inSchema: ICFinishBuyInSchema): Promise<numbe
         await client.query('BEGIN');
 
         // Atualização do status do pedido, se não encontrar o pedido, retorna null
-        qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [inSchema.buyOrderId])).rowCount;
+        qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [buyKey.buyOrderId])).rowCount;
         if(!qntUpdatedBuyOrders){
             await client.query('ROLLBACK');
             return null;
         }
 
         // Busca os itens do pedido, se não encontrar nenhum item, retorna null
-        items = (await client.query(dbQuerySearchItemsInBuyOrder, [inSchema.buyOrderId])).rows;
+        items = (await client.query(dbQuerySearchItemsInBuyOrder, [buyKey.buyOrderId])).rows;
         if(items.length === 0){
             await client.query('ROLLBACK');
             return null;

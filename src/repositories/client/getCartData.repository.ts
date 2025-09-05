@@ -1,5 +1,6 @@
 import pool from "../../database/connection";
 import { ICGetCartOutSchema } from "../../schemas/lojinha/output/getCartOut.schema";
+import { ApiError } from "../../errors/ApiError";
 
 const dbQueryGetCart = `
     SELECT
@@ -45,18 +46,15 @@ const dbQueryGetItems = `
     WHERE i.buy_order_id = $1
 `;
 
-export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema | null> => {
+export const getCartData = async (userId: number): Promise<ICGetCartOutSchema | null> => {
 
-    // Variáveis de controle
-    let changedCart: boolean = false;
-    let cartId : number|undefined = 0;
-    let qntItemsQuantityUpdated: number|null = 0;
-    let qntItemsValueUpdated: number|null = 0;
-    let totalValue: number = 0;
+    // Variável de retorno
+    let cart: ICGetCartOutSchema | null = null;
     
     // Lista de itens do carrinho
     let items: any[] = [];
 
+    // Conexão com o banco de dados
     const client = await pool.connect();
 
     try{
@@ -64,20 +62,18 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
         await client.query('BEGIN');
 
         // Busca o carrinho do usuário
-        cartId = (await client.query(dbQueryGetCart, [user_id])).rows[0]?.id;
+        const cartId = (await client.query(dbQueryGetCart, [userId])).rows[0]?.id;
         if(cartId === undefined) {
             await client.query('ROLLBACK');
-            return null;
+            throw new ApiError(404, 'Carrinho inexistente');
         }
 
         // Atualização de itens no carrinho
-        qntItemsQuantityUpdated = (await client.query(dbQueryUpdateItemsQuantity, [cartId])).rowCount;
-        qntItemsValueUpdated = (await client.query(dbQueryUpdateItemsValue, [cartId])).rowCount;
+        const qntItemsQuantityUpdated = (await client.query(dbQueryUpdateItemsQuantity, [cartId])).rowCount;
+        const qntItemsValueUpdated = (await client.query(dbQueryUpdateItemsValue, [cartId])).rowCount;
 
         // Verificação se itens foram atualizados
-        if(qntItemsQuantityUpdated || qntItemsValueUpdated){
-            changedCart = true;
-        }
+        const changedCart: boolean = (qntItemsQuantityUpdated || qntItemsValueUpdated) ? true : false;;
 
         // Fim da primeira transação
         await client.query('COMMIT');
@@ -89,11 +85,19 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
         items = (await client.query(dbQueryGetItems, [cartId])).rows;
         if(!items || items.length === 0){
             await client.query('ROLLBACK');
-            return null
+            throw new ApiError(404, 'Carrinho vazio');
         }
     
         // Calcula o valor total
-        totalValue = items.reduce((sum, item) => sum + Number(item.value) * Number(item.quantity), 0);
+        const totalValue : number = items.reduce((sum, item) => sum + Number(item.value) * Number(item.quantity), 0);
+
+        // Monta o objeto do carrinho
+        cart = {
+            id: cartId,
+            changed: changedCart,
+            totalValue: totalValue,
+            items: items
+        };
 
         // Fim da segunda transação
         await client.query('COMMIT');
@@ -110,14 +114,6 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
         // Fecha conexão com bd
         client.release();
     }
-
-    // Monta o objeto de saída
-    const cart: ICGetCartOutSchema = {
-        id: cartId,
-        changed: changedCart,
-        totalValue: totalValue,
-        items: items
-    };
 
     // Retorna carrinho
     return cart;

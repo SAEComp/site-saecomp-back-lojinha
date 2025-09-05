@@ -8,10 +8,10 @@ const dbQueryAddCommentData = `
     RETURNING id
 `;
 
-export const addCommentData = async(userId: number,inSchema: ICAddCommentInSchema): Promise<ICAddCommentOutSchema|undefined> => {
+export const addCommentData = async(userId: number, addedComment: ICAddCommentInSchema): Promise<ICAddCommentOutSchema|undefined> => {
 
     // Adiciona o comentário no banco de dados
-    const id  = (await pool.query(dbQueryAddCommentData, [userId, inSchema.comment])).rows[0]?.id;
+    const id  = (await pool.query(dbQueryAddCommentData, [userId, addedComment.comment])).rows[0]?.id;
     
     // Se não conseguiu adicionar, retorna undefined
     if(!id) return undefined;

@@ -30,10 +30,10 @@ const dbQueryGetProductByBarCode = `
     WHERE bar_code = $1 AND soft_delete = false
 `;
 
-const getProductDataById = async(inSchema :ICGetProductInSchema): Promise<ICGetProductOutSchema> => {
+const getProductDataById = async(productKey :ICGetProductInSchema): Promise<ICGetProductOutSchema> => {
     
     // Procura produto pelo id
-    const result = await pool.query(dbQueryGetProductById, [inSchema.productId]);
+    const result = await pool.query(dbQueryGetProductById, [productKey.productId]);
 
     // Obtenção de produto procurado
     const product : ICGetProductOutSchema = result.rows[0];
@@ -42,10 +42,10 @@ const getProductDataById = async(inSchema :ICGetProductInSchema): Promise<ICGetP
     return product;
 }
 
-const getProductDataByBarCode = async(inSchema: ICGetProductInSchema): Promise<ICGetProductOutSchema> => {
+const getProductDataByBarCode = async(productKey: ICGetProductInSchema): Promise<ICGetProductOutSchema> => {
     
     // Procura produto pelo id
-    const result = await pool.query(dbQueryGetProductByBarCode, [inSchema.barCode]);
+    const result = await pool.query(dbQueryGetProductByBarCode, [productKey.barCode]);
 
     // Obtenção de produto procurado
     const product : ICGetProductOutSchema = result.rows[0];

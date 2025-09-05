@@ -30,7 +30,7 @@ const dbQueryCreateUserPunctuation = `
     RETURNING id
 `;
 
-export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
+export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
     
     // Variável de retorno
     let returned : ICRegisterPaymentOutSchema|null = null;
@@ -43,14 +43,14 @@ export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): P
         await client.query('BEGIN');
 
         // Atualização do status do pedido, se estiver como "pendingPayment"
-        const userId = (await client.query(dbQuerySetBuyOrderToFinalized, [inSchema.buyOrderId])).rows[0]?.userId;
+        const userId = (await client.query(dbQuerySetBuyOrderToFinalized, [orderKey.buyOrderId])).rows[0]?.userId;
         if(!userId){
             await client.query('ROLLBACK');
             return null;
         }
 
         // Cálculo do valor total gasto pelo usuário 
-        const totalValue = (await client.query(dbQueryGetTotalValueOfOrder, [inSchema.buyOrderId])).rows[0]?.totalValue;
+        const totalValue = (await client.query(dbQueryGetTotalValueOfOrder, [orderKey.buyOrderId])).rows[0]?.totalValue;
         if(!totalValue){
             await client.query('ROLLBACK');
             return null;

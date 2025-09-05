@@ -2,10 +2,10 @@ import pool from "../../database/connection";
 import { ICGetProductPageInSchema} from "../../schemas/lojinha/input/getProductPageIn.schema";
 import { ICGetProductPageOutSchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
 
-export const getProductPageData = async(inSchema: ICGetProductPageInSchema): Promise<ICGetProductPageOutSchema> => {
+export const getProductPageData = async(pageSettings: ICGetProductPageInSchema): Promise<ICGetProductPageOutSchema> => {
     
     // Desestruturação do schema de entrada
-    const {page, pageSize, category, name} = inSchema;
+    const {page, pageSize, category, name} = pageSettings;
 
     // Partes dinâmicas da query
     let params: string[] = ['soft_delete = $1'];

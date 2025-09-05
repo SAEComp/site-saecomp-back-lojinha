@@ -21,7 +21,7 @@ const dbQueryAddEntryHistory = `
     o código deverá ser adaptado para que exista uma edição via código de barras e uma edição
     via id do produto
 */
-export const editProductData = async(inSchema: ICEditProductInSchema): Promise<number|null> =>{
+export const editProductData = async(product: ICEditProductInSchema): Promise<number|null> =>{
     
     // Variáveis de controle
     let qntEditedProducts: number|null = 0;
@@ -34,33 +34,33 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
     const values: any[] = [];
 
     // Construção dinâmica da query de atualização
-    if(inSchema.name !== undefined){
+    if(product.name !== undefined){
         updateIndex.push('name = $' + (values.length + 1));
-        values.push(inSchema.name);
+        values.push(product.name);
     }
-    if(inSchema.value !== undefined){
+    if(product.value !== undefined){
         updateIndex.push(' value = $' + (values.length + 1));
-        values.push(inSchema.value);
+        values.push(product.value);
     }
-    if(inSchema.description !== undefined){
+    if(product.description !== undefined){
         updateIndex.push(' description = $' + (values.length + 1));
-        values.push(inSchema.description);
+        values.push(product.description);
     }
-    if(inSchema.quantity !== undefined){
+    if(product.quantity !== undefined){
         updateIndex.push(' quantity = $' + (values.length + 1));
-        values.push(inSchema.quantity);
+        values.push(product.quantity);
     }
-    if(inSchema.barCode !== undefined){
+    if(product.barCode !== undefined){
         updateIndex.push(' bar_code = $' + (values.length + 1));
-        values.push(inSchema.barCode ?? null);
+        values.push(product.barCode ?? null);
     }
-    if(inSchema.imgUrl !== undefined){
+    if(product.imgUrl !== undefined){
         updateIndex.push(' img_url = $' + (values.length + 1));
-        values.push(inSchema.imgUrl);
+        values.push(product.imgUrl);
     }
-    if(inSchema.category !== undefined){
+    if(product.category !== undefined){
         updateIndex.push(' category = $' + (values.length + 1));
-        values.push(inSchema.category);
+        values.push(product.category);
     }
 
     // Se não houver campos para atualizar, retorna null
@@ -68,7 +68,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
 
     // Adiciona o id ao final dos valores para a cláusula WHERE
     const idParamIndex: number = values.length + 1;
-    values.push(inSchema.productId); 
+    values.push(product.productId); 
 
     // Query de atualização dinâmica
     const dbQueryEditProduct = `
@@ -88,24 +88,24 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
             Se a quantidade do produto foi atualizada, adiciona um registro na tabela entry_histories
             e verifica o sucesso da inserção
         */
-        if(inSchema.quantity !== undefined){
+        if(product.quantity !== undefined){
            
 
             // Obtém a quantidade antiga do produto
-             const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [inSchema.productId])).rows[0];
+             const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [product.productId])).rows[0];
             if(oldQuantity === undefined || oldQuantity === null || oldValue === undefined || oldValue === null){
                await client.query('ROLLBACK');
                return null;
             }
             
             // Se o valor do produto foi atualizado, utiliza o novo valor; caso contrário, utiliza o valor antigo
-            const newValue: number = inSchema.value !== undefined ? inSchema.value : oldValue;
+            const newValue: number = product.value !== undefined ? product.value : oldValue;
             
             // Obtenção de quantidade líquida (permite verificar roubos na loja física)
-            const newQuantity: number = inSchema.quantity - oldQuantity;
+            const newQuantity: number = product.quantity - oldQuantity;
                         
             // Obtem o id do registro de adição de produto inserido
-            entryHistoryId = (await client.query(dbQueryAddEntryHistory, [inSchema.productId, newQuantity, newValue])).rows[0]?.id
+            entryHistoryId = (await client.query(dbQueryAddEntryHistory, [product.productId, newQuantity, newValue])).rows[0]?.id
             
             // Verifica se a inserção foi bem sucedida
             if(!entryHistoryId){

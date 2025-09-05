@@ -2,7 +2,7 @@ import pool from "../../database/connection";
 import { ICGetBuyOrderPageInSchema } from "../../schemas/lojinha/input/getBuyOrderPageIn.schema";
 import { ICGetBuyOrderPageOutSchema } from "../../schemas/lojinha/output/getBuyOrderPageOut.schema";
 
-export const getBuyOrderPageData = async (inSchema: ICGetBuyOrderPageInSchema): Promise<ICGetBuyOrderPageOutSchema> => {
+export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchema): Promise<ICGetBuyOrderPageOutSchema> => {
 
     // Desestrutura os parâmetros de entrada
     const {
@@ -14,7 +14,7 @@ export const getBuyOrderPageData = async (inSchema: ICGetBuyOrderPageInSchema): 
         totalValueMax,
         dateMin,
         dateMax
-    } = inSchema;
+    } = pageSettings;
 
     // Filtros dinâmicos opcionais
     const filters: string[] = [];

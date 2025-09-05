@@ -9,9 +9,9 @@ const dbQueryAddEntryHistory = `
     RETURNING id
 `;
 
-export const addProductData = async(inSchema: ICAddProductInSchema): Promise<ICAddProductOutSchema|null> => {
+export const addProductData = async(product: ICAddProductInSchema): Promise<ICAddProductOutSchema|null> => {
     
-    // Variáveis de controle
+    // Variável de retorno
     let returned: ICAddProductOutSchema|null = null;
 
     // Partes dinâmicas da query
@@ -22,19 +22,19 @@ export const addProductData = async(inSchema: ICAddProductInSchema): Promise<ICA
     // Valores obrigatórios para a query
     columns = ['name', 'value', 'description', 'quantity', 'category'];
     indexs = ['$1', '$2', '$3', '$4', '$5'];
-    values.push(inSchema.name, inSchema.value, inSchema.description, inSchema.quantity, inSchema.category);
+    values.push(product.name, product.value, product.description, product.quantity, product.category);
 
 
     // Verifica se os parâmetros opcionais foram enviados, adicionando-os na query
-    if(inSchema.imgUrl){
+    if(product.imgUrl){
         columns.push('img_url');
         indexs.push('$' + (values.length + 1));
-        values.push(inSchema.imgUrl);
+        values.push(product.imgUrl);
     }
-    if(inSchema.barCode){
+    if(product.barCode){
         columns.push('bar_code');
         indexs.push('$' + (values.length + 1));
-        values.push(inSchema.barCode);
+        values.push(product.barCode);
     }
 
     // Query dinâmica para adicionar produto 
@@ -63,7 +63,7 @@ export const addProductData = async(inSchema: ICAddProductInSchema): Promise<ICA
             Registra produto adicionado no histórico de entrada, retornando id do histórico e verificando 
             se a adição foi bem sucedida
         */
-        const entryHistoryId = (await client.query(dbQueryAddEntryHistory, [productId, inSchema.quantity, inSchema.value])).rows[0]?.id;
+        const entryHistoryId = (await client.query(dbQueryAddEntryHistory, [productId, product.quantity, product.value])).rows[0]?.id;
         if(!entryHistoryId){
             await client.query('ROLLBACK');
             return null;

@@ -2,10 +2,10 @@ import pool from "../../database/connection";
 import { ICGetEntryHistoryPageInSchema } from "../../schemas/lojinha/input/getEntryHistoryPageIn.schema";
 import { ICGetEntryHistoryPageOutSchema } from "../../schemas/lojinha/output/getEntryHistoryPageOut.schema";
 
-export const getEntryHistoryPageData = async (inSchema: ICGetEntryHistoryPageInSchema): Promise<ICGetEntryHistoryPageOutSchema> => {
+export const getEntryHistoryPageData = async (pageSettings: ICGetEntryHistoryPageInSchema): Promise<ICGetEntryHistoryPageOutSchema> => {
   
     // Desestrutura os parâmetros de entrada
-    const { page, pageSize, productName, value, quantity, dateMin, dateMax } = inSchema;
+    const { page, pageSize, productName, value, quantity, dateMin, dateMax } = pageSettings;
 
     // Monta filtros dinâmicos
     const filters: string[] = [];
