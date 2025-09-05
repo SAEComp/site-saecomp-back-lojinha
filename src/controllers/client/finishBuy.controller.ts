@@ -8,10 +8,9 @@ import { finishBuyData } from "../../repositories/client/finishBuyData.repositor
 const finishBuy = async(req: Request, res: Response): Promise<void> => {
  
     // Validação do schema de entrada
-    const body = finishBuyInSchema.safeParse(req.body);
-    if(!body.success) throw new ApiError(400, body.error.message);
+    const body = finishBuyInSchema.parse(req.body);
     
-    const result = await finishBuyData(body.data);
+    const result = await finishBuyData(body);
     
     // Checagem do resultado da função de repositório, para existência de pedido
     if(!result) throw new ApiError(404, 'Pedido não vazio ou inexistente');

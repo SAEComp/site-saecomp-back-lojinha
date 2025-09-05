@@ -9,13 +9,10 @@ const addComment = async(req: Request, res: Response): Promise<void> => {
     if(req.userId === undefined) throw new ApiError(404, "Usuário não encontrado");
 
     // Obtenção do body de requisição
-    const body = addCommentInSchema.safeParse(req.body);
-
-    // Verificação se o body está correto
-    if(!body.success) throw new ApiError(400, body.error.message);
+    const body = addCommentInSchema.parse(req.body);
 
     // Adição do comentário no banco de dados
-    const result = await addCommentData(req.userId, body.data);
+    const result = await addCommentData(req.userId, body);
 
     // Verificação se o comentário foi adicionado
     if(!result) throw new ApiError(404, 'Comentário não adicionado');

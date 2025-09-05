@@ -9,7 +9,7 @@ const dbQueryGetOldProductQuantity = `
     WHERE id = $1
 `;
 
-const dbQueryAddEntryHistorie = `
+const dbQueryAddEntryHistory = `
     INSERT INTO entry_histories (product_id, quantity, value)
     VALUES ($1, $2, $3)
     RETURNING id
@@ -105,7 +105,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
             const newQuantity: number = inSchema.quantity - oldQuantity;
                         
             // Obtem o id do registro de adição de produto inserido
-            entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [inSchema.productId, newQuantity, newValue])).rows[0]?.id
+            entryHistoryId = (await client.query(dbQueryAddEntryHistory, [inSchema.productId, newQuantity, newValue])).rows[0]?.id
             
             // Verifica se a inserção foi bem sucedida
             if(!entryHistoryId){

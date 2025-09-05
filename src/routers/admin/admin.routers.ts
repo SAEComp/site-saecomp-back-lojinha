@@ -6,13 +6,13 @@ import getBuyOrderPage from "../../controllers/admin/getBuyOrderPage.controller"
 import getEntryHistoryPage from "../../controllers/admin/getEntryHistoryPage.controller";
 
 // Instanciação do express
-const adminRounter = express.Router();
+const adminRouter = express.Router();
 
-adminRounter.post('/produto', addProduct);
-adminRounter.put('/produto', editProduct);
-adminRounter.delete('/produto', removeProduct)
-adminRounter.get('/historico-pedidos', getBuyOrderPage);
-adminRounter.get('/historico-entradas', getEntryHistoryPage);
+adminRouter.post('/produto', addProduct);
+adminRouter.put('/produto', editProduct);
+adminRouter.delete('/produto', removeProduct);
+adminRouter.get('/historico-pedidos', getBuyOrderPage);
+adminRouter.get('/historico-entradas', getEntryHistoryPage);
 
 // Definição do tratamento de requisições
-export default adminRounter;
+export default adminRouter;

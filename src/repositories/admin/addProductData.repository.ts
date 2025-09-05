@@ -3,7 +3,7 @@ import { ICAddProductInSchema } from "../../schemas/lojinha/input/addProductIn.s
 import { ICAddProductOutSchema } from "../../schemas/lojinha/output/addProductOut.schema";
 
 
-const dbQueryAddEntryHistorie = `
+const dbQueryAddEntryHistory = `
     INSERT INTO entry_histories (product_id, quantity, value)
     VALUES ($1, $2, $3)
     RETURNING id
@@ -13,8 +13,6 @@ export const addProductData = async(inSchema: ICAddProductInSchema): Promise<ICA
     
     // Variáveis de controle
     let returned: ICAddProductOutSchema|null = null;
-    let productId: number|null|undefined = 0;
-    let entryHistoryId: number|null|undefined = 0;
 
     // Partes dinâmicas da query
     let columns: string[] = [];
@@ -55,7 +53,7 @@ export const addProductData = async(inSchema: ICAddProductInSchema): Promise<ICA
         await client.query('BEGIN');
 
         // Adiciona produto, retornando id do produto adicionado e verificando se a adição foi bem sucedida
-        productId  = (await client.query(dbQueryAddProduct, values)).rows[0]?.id;
+        const productId  = (await client.query(dbQueryAddProduct, values)).rows[0]?.id;
         if(!productId){
             await client.query('ROLLBACK');
             return null;
@@ -65,7 +63,7 @@ export const addProductData = async(inSchema: ICAddProductInSchema): Promise<ICA
             Registra produto adicionado no histórico de entrada, retornando id do histórico e verificando 
             se a adição foi bem sucedida
         */
-        entryHistoryId = (await client.query(dbQueryAddEntryHistorie, [productId, inSchema.quantity, inSchema.value])).rows[0]?.id;
+        const entryHistoryId = (await client.query(dbQueryAddEntryHistory, [productId, inSchema.quantity, inSchema.value])).rows[0]?.id;
         if(!entryHistoryId){
             await client.query('ROLLBACK');
             return null;

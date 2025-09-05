@@ -33,30 +33,30 @@ function authenticate(requiredPermissions?: string[]): (req: Request, res: Respo
         const authHeader = req.headers.authorization;
         
         // USO SOMENTE PARA TESTES!!!
-        req.userId = 1;
-        next();
-        return;
+            // req.userId = 1;
+            // next();
+            // return;
         
-        // if (!authHeader || !authHeader.startsWith('Bearer ')) throw new ApiError(401, 'Token de autenticação não fornecido ou inválido');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) throw new ApiError(401, 'Token de autenticação não fornecido ou inválido');
 
-        // const token = authHeader.split(' ')[1];
+        const token = authHeader.split(' ')[1];
 
-        // try {
-        //     const payload = verifyAccessToken(token);
-        //     if (!payload) throw new ApiError(401, 'Token inválido ou expirado');
-        //     req.userId = Number(payload.sub);
-        //     req.userRole = payload.role;
-        //     req.userPermissions = payload.permissions || [];
-        //     if (requiredPermissions) {
-        //         const hasPermission = requiredPermissions.some(permission =>
-        //             req.userPermissions?.includes(permission)
-        //         );
-        //     if (!hasPermission) throw new ApiError(403, 'Acesso negado: Permissões insuficientes');
-        //     }
-        //     next();
-        // } catch (err) {
-        //     throw new ApiError(401, 'Token inválido ou expirado');
-        // }
+        try {
+            const payload = verifyAccessToken(token);
+            if (!payload) throw new ApiError(401, 'Token inválido ou expirado');
+            req.userId = Number(payload.sub);
+            req.userRole = payload.role;
+            req.userPermissions = payload.permissions || [];
+            if (requiredPermissions) {
+                const hasPermission = requiredPermissions.some(permission =>
+                    req.userPermissions?.includes(permission)
+                );
+            if (!hasPermission) throw new ApiError(403, 'Acesso negado: Permissões insuficientes');
+            }
+            next();
+        } catch (err) {
+            throw new ApiError(401, 'Token inválido ou expirado');
+        }
     }
 }
 

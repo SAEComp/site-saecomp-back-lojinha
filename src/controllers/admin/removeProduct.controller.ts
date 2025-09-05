@@ -9,7 +9,7 @@ const removeProduct = async(req: Request, res: Response): Promise<void> => {
     const body = removeProductInSchema.parse(req.body);
 
     // Remoção do produto no banco de dados e obtenção da quantidade de produtos editados
-    const qntRemoves = await removeProductData({product_id:body.product_id});
+    const qntRemoves = await removeProductData(body);
 
     // Se nenhum produto foi editado, lança um erro 404 (produto não encontrado)
     if(!qntRemoves) throw new ApiError(404, 'Produto não encontrado');

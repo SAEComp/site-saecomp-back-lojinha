@@ -7,11 +7,10 @@ import { registerPaymentData } from "../../repositories/client/registerPaymentDa
 const registerPayment = async(req: Request, res: Response): Promise<void> =>{
 
     // Validação do schema de entrada
-    const body = registerPaymentInSchema.safeParse(req.body);
-    if(!body.success) throw new ApiError(400, body.error.message);
+    const body = registerPaymentInSchema.parse(req.body);
 
     // Chamada da função de repositório
-    const result = await registerPaymentData(body.data);
+    const result = await registerPaymentData(body);
     
     // Checagem do resultado da função de repositório, para existência de pedido
     if(!result) throw new ApiError(404, 'Pedido inexistente');

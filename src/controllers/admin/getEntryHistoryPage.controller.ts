@@ -7,13 +7,11 @@ import { getEntryHistoryPageOutSchema } from "../../schemas/lojinha/output/getEn
 const getEntryHistoryPage = async (req: Request, res: Response) => {
 
     // Validação dos dados de entrada
-    const query = getEntryHistoryPageInSchema.safeParse(req.query);
+    const query = getEntryHistoryPageInSchema.parse(req.query);
 
-    // Tratamento de erro na validação
-    if(!query.success) throw new ApiError( 400, query.error.message);
 
     // Obtenção dos página de histórico de entradas
-    const outData = await getEntryHistoryPageData(query.data);
+    const outData = await getEntryHistoryPageData(query);
 
     // Verificação se há dados a serem retornados
     if(!outData || outData.entryHistory.length === 0) 

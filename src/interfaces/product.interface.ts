@@ -1,5 +1,5 @@
 export enum category_t{
-    sweet ='sweety',
+    sweet ='sweet',
     salty = 'salty',
     drink = 'drink'
 };

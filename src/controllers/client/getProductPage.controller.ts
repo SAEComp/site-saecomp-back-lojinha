@@ -8,13 +8,10 @@ import { ICGetProductPageOutSchema } from "../../schemas/lojinha/output/getProdu
 const getProductPage = async(req: Request, res: Response): Promise<void> => {
     
     // Obtenção da query enviada na requisição
-    const query = getProductPageInSchema.safeParse(req.query);
-
-    // Validação da query
-    if(!query.success) throw new ApiError(404,  query.error.message);
+    const query = getProductPageInSchema.parse(req.query);
     
     // Obtém página de produtos (com ou sem especificação de categoria)
-    const page: ICGetProductPageOutSchema = await getProductPageData(query.data); 
+    const page: ICGetProductPageOutSchema = await getProductPageData(query); 
     
     // Verifica se há produtos a serem retornados
     if(!page || page.product.length === 0) throw new ApiError(404, 'Nenhum produto encontrado');

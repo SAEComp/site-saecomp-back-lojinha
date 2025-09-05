@@ -32,13 +32,6 @@ const dbQueryCreateUserPunctuation = `
 
 export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
     
-    // Variáveis de controle
-    let userId : number|undefined = 0
-    let totalValue : number|undefined = 0;
-    let qntPunctuationUpdate : number|null = 0;
-    let ponctuationId : number|undefined = 0;
-    let score : number = 0;
-
     // Variável de retorno
     let returned : ICRegisterPaymentOutSchema|null = null;
 
@@ -50,30 +43,30 @@ export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): P
         await client.query('BEGIN');
 
         // Atualização do status do pedido, se estiver como "pendingPayment"
-        userId = (await client.query(dbQuerySetBuyOrderToFinalized, [inSchema.buyOrderId])).rows[0]?.userId;
+        const userId = (await client.query(dbQuerySetBuyOrderToFinalized, [inSchema.buyOrderId])).rows[0]?.userId;
         if(!userId){
             await client.query('ROLLBACK');
             return null;
         }
 
         // Cálculo do valor total gasto pelo usuário 
-        totalValue = (await client.query(dbQueryGetTotalValueOfOrder, [inSchema.buyOrderId])).rows[0]?.totalValue;
+        const totalValue = (await client.query(dbQueryGetTotalValueOfOrder, [inSchema.buyOrderId])).rows[0]?.totalValue;
         if(!totalValue){
             await client.query('ROLLBACK');
             return null;
         }
 
         // 1 real <=> 100 pontos
-        score = totalValue * 100;
+        const score : number = totalValue * 100;
 
         // Atualização da pontuação do usuário
-        qntPunctuationUpdate = (await client.query(dbQueryUpdateUserScore, [score, userId])).rowCount;
+        const qntPunctuationUpdate = (await client.query(dbQueryUpdateUserScore, [score, userId])).rowCount;
         
         // Se não houver pontuação, cria uma nova
         if(!qntPunctuationUpdate){
             
-            ponctuationId = (await client.query(dbQueryCreateUserPunctuation, [userId, score])).rows[0]?.id;
-            if(!ponctuationId){
+            const punctuationId = (await client.query(dbQueryCreateUserPunctuation, [userId, score])).rows[0]?.id;
+            if(!punctuationId){
                 await client.query('ROLLBACK');
                 return null;
             }

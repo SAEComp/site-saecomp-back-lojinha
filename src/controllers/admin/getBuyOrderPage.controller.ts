@@ -10,12 +10,10 @@ const getBuyOrderPage = async(req: Request, res: Response): Promise<void> => {
     let buyOrderPage : ICGetBuyOrderPageOutSchema;
     
     // Obtenção da query enviada na requisição
-    const query = getBuyOrderPageInSchema.safeParse(req.query);
+    const query = getBuyOrderPageInSchema.parse(req.query);
 
-    if(!query.success) throw new ApiError(400, 'Erro na validação da query');
-    
     // Obtém página de produtos (com ou sem especificação de categoria)
-    buyOrderPage = await getBuyOrderPageData(query.data);
+    buyOrderPage = await getBuyOrderPageData(query);
    
     // Verifica se há produtos a serem retornados
     if(!buyOrderPage || buyOrderPage.buyOrder.length === 0) 

@@ -7,11 +7,10 @@ import { addProductData } from "../../repositories/admin/addProductData.reposito
 const addProduct = async(req: Request, res: Response): Promise<void> => {
 
     // Obtém e valida o body de entrada
-    const body = addProductInSchema.safeParse(req.body);
-    if(!body.success) throw new ApiError(404, body.error.message);
+    const body = addProductInSchema.parse(req.body);
 
     // Adiciona produto ao banco de dados
-    const result = await addProductData(body.data);
+    const result = await addProductData(body);
     
     // Verifica se o produto foi adicionado, e se não, retorna erro
     if(!result) throw new ApiError(404, 'Produto não adicionado');

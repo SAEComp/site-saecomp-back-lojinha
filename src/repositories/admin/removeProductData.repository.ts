@@ -10,7 +10,7 @@ const dbQueryRemoveProduct = `
 export const removeProductData = async(inSchema: ICRemoveProductInSchema): Promise<number|null> => {
     
     // Remoção lógica do produto (soft delete)
-    const rowCount = (await pool.query(dbQueryRemoveProduct, [inSchema.product_id])).rowCount;
+    const rowCount = (await pool.query(dbQueryRemoveProduct, [inSchema.productId])).rowCount;
 
     // Retorna a quantidade de linhas afetadas (0 ou 1)
     return rowCount;

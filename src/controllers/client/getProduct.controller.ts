@@ -11,22 +11,19 @@ const getProduct = async(req: Request, res: Response): Promise<void> => {
     let product : ICGetProductOutSchema | undefined;
     
     // Obtém os parâmetros da query
-    const query = getProductInSchema.safeParse(req.query);
-
-    // Verificação de erros na query
-    if(!query.success) throw new ApiError(404, query.error.message);
+    const query = getProductInSchema.parse(req.query);
 
     // Obtençaõ de id de produto e/ou código de barras passado na query
-    const {productId , barCode} = query.data;
+    const {productId , barCode} = query;
     
     // Verificação de parâmetros passados na query são válidos
     if((!productId) && (!barCode)) throw new ApiError(404, 'Parâmetros inválidos');
 
     // Busca produto pelo código de barras
-    if(barCode) product = await getProductDataByBarCode(query.data);
+    if(barCode) product = await getProductDataByBarCode(query);
     
     // Busca produto pelo id
-    if(productId) product = await getProductDataById(query.data);
+    if(productId) product = await getProductDataById(query);
     
     // Produto não encontrado
     if(!product) throw new ApiError(404, 'Produto não encontrado');

@@ -11,13 +11,10 @@ import { editProductData } from "../../repositories/admin/editProductData.reposi
 const editProduct = async(req: Request, res: Response): Promise<void> => {
  
     // Obtenção e validação dos dados de entrada
-    const body = editProductInSchema.safeParse(req.body);
-
-    // Verificação de erros na validação
-    if(!body.success) throw new ApiError(404, body.error.message);
+    const body = editProductInSchema.parse(req.body);
 
     // Edição do produto no banco de dados e obtenção da quantidade de produtos editados
-    const qntEdits = await editProductData(body.data);
+    const qntEdits = await editProductData(body);
 
     // Se nenhum produto foi editado, lança um erro 404 (produto não encontrado)
     if(!qntEdits) throw new ApiError(404, 'Produto não encontrado');
