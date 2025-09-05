@@ -74,7 +74,7 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
         qntItemsQuantityAtualized = (await client.query(dbQueryUpdateItemsQuantity, [cartId])).rowCount;
         qntItemsValueAtualized = (await client.query(dbQueryUpdateItemsValue, [cartId])).rowCount;
 
-        // Verifiação se itens foram atualizados
+        // Verificação se itens foram atualizados
         if(qntItemsQuantityAtualized || qntItemsValueAtualized){
             changedCart = true;
         }
