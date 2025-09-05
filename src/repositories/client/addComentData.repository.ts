@@ -16,7 +16,7 @@ export const addCommentData = async(userId: number,inSchema: ICAddCommentInSchem
     // Se não conseguiu adicionar, retorna undefined
     if(!id) return undefined;
 
-    // Inclusão do id do comentário adicionado no resulta1do
+    // Inclusão do id do comentário adicionado no resultado
     const result: ICAddCommentOutSchema = {
         commentId: id
     }
