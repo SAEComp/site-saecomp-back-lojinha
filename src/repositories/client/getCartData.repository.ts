@@ -70,7 +70,7 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
             return null;
         }
 
-        // Atualização de intens no carrinho
+        // Atualização de itens no carrinho
         qntItemsQuantityAtualized = (await client.query(dbQueryUpdateItemsQuantity, [cartId])).rowCount;
         qntItemsValueAtualized = (await client.query(dbQueryUpdateItemsValue, [cartId])).rowCount;
 
