@@ -1,8 +1,8 @@
 INSERT INTO products (name, value, description, quantity, bar_code, category, img_url) VALUES
-('Refrigerante', 6.00, 'Refrigerante lata', 15, '1234567890124', 'drink', '/img/refrigerante.png'),
-('Salgadinho', 4.00, 'Salgadinho de milho', 20, '1234567890125', 'salty', '/img/salgadinho.png'),
-('Chocolate', 7.00, 'Chocolate ao leite', 12, '1234567890126', 'sweet', '/img/chocolate.png'),
-('Suco', 5.00, 'Suco natural', 18, '1234567890127', 'drink', '/img/suco.png'),
+('Refrigerante', 6.65, 'Refrigerante lata', 15, '1234567890124', 'drink', '/img/refrigerante.png'),
+('Salgadinho', 4.35, 'Salgadinho de milho', 20, '1234567890125', 'salty', '/img/salgadinho.png'),
+('Chocolate', 7.59, 'Chocolate ao leite', 12, '1234567890126', 'sweet', '/img/chocolate.png'),
+('Suco', 5.45, 'Suco natural', 18, '1234567890127', 'drink', '/img/suco.png'),
 ('Batata frita', 8.00, 'Batata frita pacote', 25, '1234567890128', 'salty', '/img/batata_frita.png'),
 ('Bala', 2.00, 'Bala de frutas', 50, '1234567890129', 'sweet', '/img/bala.png'),
 ('Água', 3.00, 'Água mineral', 30, '1234567890130', 'drink', '/img/agua.png'),

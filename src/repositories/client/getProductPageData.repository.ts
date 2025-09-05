@@ -1,38 +1,56 @@
 import pool from "../../database/connection";
 import { ICGetProductPageInSchema} from "../../schemas/lojinha/input/getProductPageIn.schema";
-import { ICGetProductPageOutArraySchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
+import { ICGetProductPageOutSchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
 
-const dbQueryWithoutCategory = `
-    SELECT * FROM products
-    WHERE soft_delete = false
-    LIMIT $1 OFFSET $2
-`;
-
-const dbQueryWithCategory = `
-    SELECT * FROM products
-    WHERE soft_delete = false
-        AND category = $1
-    LIMIT $2 OFFSET $3
-`;
-
-const getProductPageDataWithoutCategory = async(productSchema: ICGetProductPageInSchema): Promise<ICGetProductPageOutArraySchema> => {
+export const getProductPageData = async(inSchema: ICGetProductPageInSchema): Promise<ICGetProductPageOutSchema> => {
     
-    // Obtém página de produtos
-    const offset = (productSchema.page - 1) * productSchema.page_size; // Número de páginas puladas antes de obter dados
-    const products : ICGetProductPageOutArraySchema= (await pool.query(dbQueryWithoutCategory, [productSchema.page_size, offset])).rows;
+    // Desestruturação do schema de entrada
+    const {page, pageSize, category, name} = inSchema;
 
-    // Retorna página de produtos
-    return products;
+    // Partes dinâmicas da query
+    let params: string[] = ['soft_delete = $1'];
+    let values: any[] = [false];
+
+    // Adiciona filtros conforme parâmetros de entrada
+    if(category){
+        params.push('category = $' + (values.length + 1));
+        values.push(category);
+    }
+    if(name){
+        params.push('name ILIKE $' + (values.length + 1));
+        values.push(`%${name}%`);
+    }
+
+    // Query completa
+    const dbQuery = `
+        SELECT 
+            id,
+            name,
+            value,
+            description,
+            quantity,
+            bar_code AS "barCode",
+            img_url AS "imgUrl",
+            category 
+        FROM products
+        WHERE 
+            ${params.join(' AND ')}
+        LIMIT $${values.length + 1} OFFSET $${values.length + 2}
+    `;
+    
+    // Adiciona paginação
+    values.push(pageSize, (page - 1) * pageSize);
+
+    // Executa a query e obtem os produtos
+    const products = (await pool.query(dbQuery, values)).rows;
+
+    // Monta o resultado conforme schema de saída
+    const result: ICGetProductPageOutSchema = {
+        product: products
+    };
+
+    // Retorna o resultado
+    return result
+
 }
 
-const getProductPageDataWithCategory = async(productSchema: ICGetProductPageInSchema): Promise<ICGetProductPageOutArraySchema> => {
-    
-    // Obtém página de produtos
-    const offset = (productSchema.page - 1) * productSchema.page_size; // Número de páginas puladas antes de obter dados
-    const products : ICGetProductPageOutArraySchema = (await pool.query(dbQueryWithCategory, [productSchema.category, productSchema.page_size, offset])).rows;
-
-    // Retorna página de produtos
-    return products;
-}
-
-export {getProductPageDataWithoutCategory, getProductPageDataWithCategory};

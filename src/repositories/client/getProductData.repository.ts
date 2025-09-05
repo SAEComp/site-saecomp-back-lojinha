@@ -38,8 +38,6 @@ const getProductDataById = async(inSchema :ICGetProductInSchema): Promise<ICGetP
     // Obtenção de produto procurado
     const product : ICGetProductOutSchema = result.rows[0];
 
-    console.log(product);
-
     // Retorna produto
     return product;
 }

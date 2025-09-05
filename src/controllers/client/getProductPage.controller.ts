@@ -1,36 +1,29 @@
 import { Request, Response} from "express";
 import { ApiError } from "../../errors/ApiError";
-import { getProductPageDataWithoutCategory, getProductPageDataWithCategory } from "../../repositories/client/getProductPageData.repository";
+import { getProductPageData } from "../../repositories/client/getProductPageData.repository";
 import { getProductPageInSchema } from "../../schemas/lojinha/input/getProductPageIn.schema";
-import { getProductPageOutArraySchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
-import { ICGetProductPageOutArraySchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
+import { getProductPageOutSchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
+import { ICGetProductPageOutSchema } from "../../schemas/lojinha/output/getProductPageOut.schema";
 
 const getProductPage = async(req: Request, res: Response): Promise<void> => {
-
-    // Vetor de produtos a serem retornados na requisição
-    var products : ICGetProductPageOutArraySchema;
     
     // Obtenção da query enviada na requisição
-    const query = await getProductPageInSchema.parse(req.query);
+    const query = getProductPageInSchema.safeParse(req.query);
+
+    // Validação da query
+    if(!query.success) throw new ApiError(404,  query.error.message);
     
     // Obtém página de produtos (com ou sem especificação de categoria)
-    if(query.category == undefined){
-        products = await getProductPageDataWithoutCategory({page: query.page, page_size: query.page_size});
-    }
-    else{
-        products = await getProductPageDataWithCategory({page: query.page, page_size: query.page_size, category: query.category});
-    }
+    const page: ICGetProductPageOutSchema = await getProductPageData(query.data); 
     
     // Verifica se há produtos a serem retornados
-    if(!products || products.length === 0){
-        throw new ApiError(404, 'Nenhum produto encontrado');
-    }
-    
+    if(!page || page.product.length === 0) throw new ApiError(404, 'Nenhum produto encontrado');
+
     // Valida os produtos obtidos com o schema de saída
-    const safedProducts = getProductPageOutArraySchema.array().parse(products); 
+    const safedPage = getProductPageOutSchema.parse(page); 
 
     // Retorna produtos validados
-    res.status(200).json(safedProducts)
+    res.status(200).json(safedPage);
 
 }
 
