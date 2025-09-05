@@ -24,7 +24,7 @@ const dbQueryUpdateUserScore = `
     WHERE user_id = $2
 `;
 
-const dbQueryCreateUserPonctuation = `
+const dbQueryCreateUserPunctuation = `
     INSERT INTO punctuation (user_id, score)
     VALUES ($1, $2)
     RETURNING id
@@ -72,7 +72,7 @@ export const registerPaymentData = async(inSchema: ICRegisterPaymentInSchema): P
         // Se não houver pontuação, cria uma nova
         if(!qntPunctuationUpdate){
             
-            ponctuationId = (await client.query(dbQueryCreateUserPonctuation, [userId, score])).rows[0]?.id;
+            ponctuationId = (await client.query(dbQueryCreateUserPunctuation, [userId, score])).rows[0]?.id;
             if(!ponctuationId){
                 await client.query('ROLLBACK');
                 return null;
