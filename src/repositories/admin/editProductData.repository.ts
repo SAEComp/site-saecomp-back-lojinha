@@ -100,7 +100,7 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
             // Se o valor do produto foi atualizado, utiliza o novo valor; caso contrário, utiliza o valor antigo
             const newValue: number = inSchema.value !== undefined ? inSchema.value : oldValue;
             
-            // Obtençaõ de quantidade líquida (permiti verificar roubos na loja física)
+            // Obtenção de quantidade líquida (permite verificar roubos na loja física)
             const newQuantity: number = (oldQuantity > inSchema.quantity) ? inSchema.quantity - oldQuantity : oldQuantity - inSchema.quantity;
                         
             // Obtem o id do registro de adição de produto inserido
