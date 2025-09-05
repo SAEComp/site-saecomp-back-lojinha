@@ -21,7 +21,7 @@ END$$;
 CREATE TABLE IF NOT EXISTS products(
 	id				BIGSERIAL 		PRIMARY KEY,
 	name 			TEXT 			NOT NULL,
-	value			REAL			CHECK(value >= 0),
+	value			REAL			NOT NULL CHECK(value >= 0),
 	description		TEXT			NOT NULL,
 	quantity		INTEGER			CHECK(quantity >= 0),
 	bar_code		CHAR(13)		UNIQUE ,
