@@ -12,24 +12,24 @@ export const getEntryHistoryPageData = async (inSchema: ICGetEntryHistoryPageInS
     const params: any[] = [];
 
     // Adiciona filtros conforme os parâmetros fornecidos
-    if(productName != undefined) {
+    if(productName !== undefined) {
         // Usa ILIKE para busca case-insensitive e parcial
         filters.push("p.name ILIKE $" + (params.length + 1));
         params.push(`%${productName}%`);
     }
-    if(value != undefined) {
+    if(value !== undefined) {
         filters.push("eh.value = $" + (params.length + 1));
         params.push(value);
     }
-    if(quantity != undefined) { // pode ser inicialmente zero
+    if(quantity !== undefined) { // pode ser inicialmente zero
         filters.push("eh.quantity = $" + (params.length + 1));
         params.push(quantity);
     }
-    if(dateMin != undefined) {
+    if(dateMin !== undefined) {
         filters.push("eh.date >= $" + (params.length + 1));
         params.push(dateMin);
     }
-    if(dateMax != undefined){
+    if(dateMax !== undefined){
         filters.push("eh.date <= $" + (params.length + 1));
         params.push(dateMax);
     }
