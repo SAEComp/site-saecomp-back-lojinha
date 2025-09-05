@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS products(
 	quantity		INTEGER			CHECK(quantity >= 0),
 	bar_code		CHAR(13)		UNIQUE ,
 	soft_delete		BOOLEAN			DEFAULT FALSE,
-	img_url			TEXT			NOT NULL,			
+	img_url			TEXT			DEFAULT NULL,			
 	category		category_t		NOT NULL
 );
 
