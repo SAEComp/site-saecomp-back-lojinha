@@ -50,8 +50,8 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
     // Variáveis de controle
     let changedCart: boolean = false;
     let cartId : number|undefined = 0;
-    let qntItemsQuantityAtualized: number|null = 0;
-    let qntItemsValueAtualized: number|null = 0;
+    let qntItemsQuantityUpdated: number|null = 0;
+    let qntItemsValueUpdated: number|null = 0;
     let totalValue: number = 0;
     
     // Lista de itens do carrinho
@@ -71,11 +71,11 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
         }
 
         // Atualização de itens no carrinho
-        qntItemsQuantityAtualized = (await client.query(dbQueryUpdateItemsQuantity, [cartId])).rowCount;
-        qntItemsValueAtualized = (await client.query(dbQueryUpdateItemsValue, [cartId])).rowCount;
+        qntItemsQuantityUpdated = (await client.query(dbQueryUpdateItemsQuantity, [cartId])).rowCount;
+        qntItemsValueUpdated = (await client.query(dbQueryUpdateItemsValue, [cartId])).rowCount;
 
         // Verificação se itens foram atualizados
-        if(qntItemsQuantityAtualized || qntItemsValueAtualized){
+        if(qntItemsQuantityUpdated || qntItemsValueUpdated){
             changedCart = true;
         }
 
