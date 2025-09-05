@@ -90,7 +90,9 @@ export const editProductData = async(inSchema: ICEditProductInSchema): Promise<n
         */
         if(inSchema.quantity !== undefined){
            
+
             // Obtém a quantidade antiga do produto
+             const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [inSchema.productId])).rows[0];
             if(oldQuantity === undefined || oldQuantity === null || oldValue === undefined || oldValue === null){
                await client.query('ROLLBACK');
                return null;
