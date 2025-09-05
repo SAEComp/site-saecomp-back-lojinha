@@ -86,7 +86,7 @@ export const getCartData = async (user_id: number): Promise<ICGetCartOutSchema |
         await client.query('BEGIN');
 
         // Busca os itens do carrinho
-        items = (await pool.query(dbQueryGetItems, [cartId])).rows;
+        items = (await client.query(dbQueryGetItems, [cartId])).rows;
         if(!items || items.length === 0){
             await client.query('ROLLBACK');
             return null
