@@ -15,7 +15,7 @@ const deleteItem = async(req: Request, res: Response): Promise<void> =>{
     const qntDeletedItems  = await deleteItemData(req.userId, query);
 
     // Verificação se o produto foi adicionado ao carrinho
-    if(!qntDeletedItems) throw new ApiError(404, 'Erro ao deletem item do carrinho');
+    if(!qntDeletedItems) throw new ApiError(404, 'Erro ao deletar item do carrinho');
     
     // Retorno de sucesso
     res.status(200).json({message: 'Item deletado do carrinho com sucesso'});
