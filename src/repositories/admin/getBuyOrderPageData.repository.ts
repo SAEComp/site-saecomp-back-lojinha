@@ -31,7 +31,7 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
     if (productName && productName.length > 0) {
 
         // // Garante que productName é um array
-        var namesArray = Array.isArray(productName) ? productName : [productName];
+        const namesArray = Array.isArray(productName) ? productName : [productName];
         
         // //  Cria um filtro para cada nome de produto
         const nameFilters = namesArray.map((_, i) => `p.name ILIKE $${params.length + i + 1}`);
