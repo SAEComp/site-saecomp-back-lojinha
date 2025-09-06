@@ -1,6 +1,6 @@
 import pool from "../../database/connection";
-import { ICGetCartOutSchema } from "../../schemas/lojinha/output/getCartOut.schema";
 import { ApiError } from "../../errors/ApiError";
+import { ICGetCartOutSchema } from "../../schemas/lojinha/output/getCartOut.schema";
 
 const dbQueryGetCart = `
     SELECT
