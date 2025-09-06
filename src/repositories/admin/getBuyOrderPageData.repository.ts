@@ -9,6 +9,7 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
         page,
         pageSize,
         status,
+        productName,
         userName,
         totalValueMin,
         totalValueMax,
@@ -26,6 +27,20 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
     if (status) {
         filters.push("bo.status = $" + (params.length + 1));
         params.push(status);
+    }
+    if (productName && productName.length > 0) {
+
+        // // Garante que productName é um array
+        var namesArray = Array.isArray(productName) ? productName : [productName];
+        
+        // //  Cria um filtro para cada nome de produto
+        const nameFilters = namesArray.map((_, i) => `p.name ILIKE $${params.length + i + 1}`);
+       
+        // // Agrupa os filtros de nome com OR
+        filters.push(`(${nameFilters.join(" OR ")})`);
+
+        // Adiciona parametros separdos para cada nome, case insensitive
+        params.push(...namesArray.map(n => `%${n}%`));
     }
     if (userName && userName.trim() !== "") {
         // Using ILIKE for case-insensitive search
@@ -52,6 +67,7 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
         FROM buy_orders bo
         INNER JOIN users u ON bo.user_id = u.id
         LEFT JOIN items i ON bo.id = i.buy_order_id
+        LEFT JOIN products p ON i.product_id = p.id
     `;
 
 
@@ -68,6 +84,11 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
 
     // Agrupamento para filtragem utilizando valores totais
     query += " GROUP BY bo.id, u.name, bo.date, bo.status ";
+
+    // Filtro para garantir que todos os nomes de produtos estejam presentes no pedido
+    if(productName && Array.isArray(productName) && productName.length > 0) {
+        query += `HAVING COUNT(DISTINCT p.name) = ${productName.length} `;
+    }
 
     // Filtros de totalValue mínimo e máximo
     if (totalValueMin !== undefined) {
