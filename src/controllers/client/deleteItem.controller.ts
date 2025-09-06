@@ -11,7 +11,7 @@ const deleteItem = async(req: Request, res: Response): Promise<void> =>{
     // Verificação se o usuário está autenticado
     if(req.userId === undefined) throw new ApiError(404, "Usuário não encontrado");
     
-    // Adiciona produto ao carrinho
+    // Remove produto do carrinho
     const qntDeletedItems  = await deleteItemData(req.userId, query);
 
     // Verificação se o produto foi adicionado ao carrinho
