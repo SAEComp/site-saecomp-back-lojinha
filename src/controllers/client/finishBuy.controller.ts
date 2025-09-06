@@ -4,6 +4,9 @@ import { finishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schem
 import { finishBuyOutSchema } from "../../schemas/lojinha/output/finishBuyOut.schema";
 import { ICFinishBuyOutSchema } from "../../schemas/lojinha/output/finishBuyOut.schema";
 import { finishBuyData } from "../../repositories/client/finishBuyData.repository";
+import { QrCodePix } from 'qrcode-pix';
+
+
 
 const finishBuy = async(req: Request, res: Response): Promise<void> => {
  
@@ -18,13 +21,25 @@ const finishBuy = async(req: Request, res: Response): Promise<void> => {
     // Checagem do resultado da função de repositório, para existência de produtos com quantidade insuficiente
     if(result < 0) throw new ApiError(404, `Produdo ${-result} em quantidade insuficiente`);
     
+    const safedValueOrder = Number(result.toFixed(2));
     
     // verificação de pix para retorno
+    const qrCodePix = QrCodePix({
+        version: '01',
+        key: '+5516992805111', 
+        name: 'Lucas Augusto Moreira Barros',
+        city: 'SAO CARLOS',
+        message: 'Compra na Lojinha do SAECOMP',
+        value: safedValueOrder,
+    });
     
     // Se tudo ocorrer bem, o resultado inclui o valor total do pedido e os dados para pagamento via pix
     const outSchema : ICFinishBuyOutSchema = {
-        totalValue: result,
-        // TODO: Add paymentData with qrCodeBase64 and pixCopiaECola when available
+        totalValue: safedValueOrder,
+        paymentData:{
+            qrCodeBase64: await qrCodePix.base64(),  // url do tipo data:image/png;base64,.... para exibir o QR Code
+            pixCopiaECola: qrCodePix.payload()       // string para o campo "copia e cola" do pix
+        }
     }
 
     // Validação do schema de saída
