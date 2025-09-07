@@ -85,21 +85,29 @@ export const getBuyOrderPageData = async (pageSettings: ICGetBuyOrderPageInSchem
     // Agrupamento para filtragem utilizando valores totais
     query += " GROUP BY bo.id, u.name, bo.date, bo.status ";
 
-    // Filtro para garantir que todos os nomes de produtos estejam presentes no pedido
-    if(productName && Array.isArray(productName) && productName.length > 0) {
-        query += `HAVING COUNT(DISTINCT p.name) = ${productName.length} `;
-    }
+    // Cláusulas HAVING para filtros que dependem de agregações
+    let havingClauses: string[] = [];
 
-    // Filtros de totalValue mínimo e máximo
+    // Filtros adicionais que dependem de agregações
+    if(productName && Array.isArray(productName) && productName.length > 0) {
+        // Garante que o pedido contenha todos os produtos listados pelos nomes
+        havingClauses.push(`COUNT(DISTINCT p.name) = $${params.length + 1}`);
+        params.push(productName.length);
+    }
     if (totalValueMin !== undefined) {
-        query += ` HAVING COALESCE(SUM(i.value * i.quantity), 0) >= $${params.length + 1}`;
+        // Garante que o valor total do pedido esteja dentro do intervalo especificado
+        havingClauses.push(`COALESCE(SUM(i.value * i.quantity), 0) >= $${params.length + 1}`);
         params.push(totalValueMin);
     }
     if (totalValueMax !== undefined) {
-        query += totalValueMin !== undefined ? 
-        ` AND COALESCE(SUM(i.value * i.quantity), 0) <= $${params.length + 1}`
-        : ` HAVING COALESCE(SUM(i.value * i.quantity), 0) <= $${params.length + 1}`;
+        // Garante que o valor total do pedido esteja dentro do intervalo especificado
+        havingClauses.push(`COALESCE(SUM(i.value * i.quantity), 0) <= $${params.length + 1}`);
         params.push(totalValueMax);
+    }
+
+    // Adiciona cláusulas HAVING se houverem
+    if (havingClauses.length > 0) {
+        query += ` HAVING ${havingClauses.join(" AND ")} `;
     }
 
     // Ordenação, paginação( com página e tamanho da página)
