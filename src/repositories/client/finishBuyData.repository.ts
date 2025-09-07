@@ -1,7 +1,6 @@
 import pool from "../../database/connection";
 import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
 import { ApiError } from "../../errors/ApiError";
-import { th } from "zod/v4/locales/index.cjs";
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -37,14 +36,9 @@ const dbQueryUpdateProductAfterFinishedBuyOrder = `
 */
 export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|null> =>{
 
-    // Variáveis de controle
+    // Valor total como variável de retorno
     let totalValue: number = 0;
-    let qntUpdatedBuyOrders: number|null = 0;
-    let qntUpdatedProducts: number|null = 0;
     
-    // Array para armazenar os itens do pedido
-    let items: any[] = [];
-
     // Início da transação
     const client = await pool.connect();
 
@@ -54,14 +48,14 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
         await client.query('BEGIN');
 
         // Atualização do status do pedido, se não encontrar o pedido, retorna null
-        qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [buyKey.buyOrderId])).rowCount;
+        const qntUpdatedBuyOrders = (await client.query(dbQuerySetBuyOrderToFinalized, [buyKey.buyOrderId])).rowCount;
         if(!qntUpdatedBuyOrders){
             await client.query('ROLLBACK');
             throw new ApiError(404, 'Pedido não encontrado');
         }
 
         // Busca os itens do pedido, se não encontrar nenhum item, retorna null
-        items = (await client.query(dbQuerySearchItemsInBuyOrder, [buyKey.buyOrderId])).rows;
+        const items: any[] = (await client.query(dbQuerySearchItemsInBuyOrder, [buyKey.buyOrderId])).rows;
         if(items.length === 0){
             await client.query('ROLLBACK');
             throw new ApiError(404, 'O pedido não possui itens válidos');
@@ -70,10 +64,10 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
         // Atualiza a quantidade dos produtos no estoque, se não conseguir atualizar algum produto, retorna o id do produto negativo
         for(var i: number = 0; i < items.length; i++){
             
-            qntUpdatedProducts = (await client.query(dbQueryUpdateProductAfterFinishedBuyOrder, [items[i].quantity, items[i].productId])).rowCount;
+            const qntUpdatedProducts = (await client.query(dbQueryUpdateProductAfterFinishedBuyOrder, [items[i].quantity, items[i].productId])).rowCount;
             if(!qntUpdatedProducts){
                 await client.query('ROLLBACK');
-                return (-items[i].productId);
+                throw new ApiError(404, `Produto ${items[i].productId} em quantidade insuficiente`);
             }
             
             totalValue += (items[i].value * items[i].quantity);
