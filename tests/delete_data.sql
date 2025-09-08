@@ -1,3 +1,4 @@
+
 -- Apaga tabelas (usa IF EXISTS e CASCADE para ignorar dependências/ordem)
 DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS comments CASCADE;

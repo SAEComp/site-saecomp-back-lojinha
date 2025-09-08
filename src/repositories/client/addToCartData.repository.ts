@@ -2,7 +2,6 @@ import pool from "../../database/connection";
 import { ICAddToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.schema";
 import { ICAddToCartOutSchema } from "../../schemas/lojinha/output/addToCartOut.schema";
 import { ApiError } from "../../errors/ApiError";
-import { th } from "zod/v4/locales/index.cjs";
 
 const dbQueryVerifyProduct = `
     SELECT 1 FROM products

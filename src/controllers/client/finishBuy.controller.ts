@@ -4,27 +4,40 @@ import { finishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schem
 import { finishBuyOutSchema } from "../../schemas/lojinha/output/finishBuyOut.schema";
 import { ICFinishBuyOutSchema } from "../../schemas/lojinha/output/finishBuyOut.schema";
 import { finishBuyData } from "../../repositories/client/finishBuyData.repository";
+import { QrCodePix } from 'qrcode-pix';
+
 
 const finishBuy = async(req: Request, res: Response): Promise<void> => {
  
     // Validação do schema de entrada
     const body = finishBuyInSchema.parse(req.body);
     
+    // Finalização do pedido e obtenção do valor total
     const result = await finishBuyData(body);
     
     // Checagem do resultado da função de repositório, para existência de pedido
-    if(!result) throw new ApiError(404, 'Pedido não vazio ou inexistente');
-
-    // Checagem do resultado da função de repositório, para existência de produtos com quantidade insuficiente
-    if(result < 0) throw new ApiError(404, `Produdo ${-result} em quantidade insuficiente`);
+    if(!result) throw new ApiError(404, 'Pedido vazio ou inexistente');
     
+    // Obtenção do valor total com duas casas decimais
+    const safedValueOrder = Number(result.toFixed(2));
     
-    // verificação de pix para retorno
+    // Obtenção do pix de pagamento para o valor do pedido
+    const qrCodePix = QrCodePix({
+        version: '01',
+        key: '+5516992805111', 
+        name: 'Lucas Augusto Moreira Barros',
+        city: 'SAO CARLOS',
+        message: 'Compra na Lojinha da SAECOMP',
+        value: safedValueOrder,
+    });
     
     // Se tudo ocorrer bem, o resultado inclui o valor total do pedido e os dados para pagamento via pix
     const outSchema : ICFinishBuyOutSchema = {
-        totalValue: result,
-        // TODO: Add paymentData with qrCodeBase64 and pixCopiaECola when available
+        totalValue: safedValueOrder,
+        paymentData:{
+            qrCodeBase64: await qrCodePix.base64(),  // url do tipo data:image/png;base64,.... para exibir o QR Code
+            pixCopiaECola: qrCodePix.payload()       // string para o campo "copia e cola" do pix
+        }
     }
 
     // Validação do schema de saída
