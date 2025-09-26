@@ -1,6 +1,9 @@
 import pool from "../../database/connection";
-import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
 import { ApiError } from "../../errors/ApiError";
+import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
+import { ICPaymentData } from "../../schemas/lojinha/output/finishBuyOut.schema";
+import { MercadoPagoConfig, Payment } from "mercadopago"
+
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -27,17 +30,11 @@ const dbQueryUpdateProductAfterFinishedBuyOrder = `
         AND quantity >= $1
 `;
 
-/* 
-    Chamada da função de repositório para finalizar o pedido
-    A função retorna:
-        - null, se o pedido não existir ou estiver vazio
-        - número negativo, se algum produto estiver com quantidade insuficiente (o número negativo é o id do produto)
-        - número positivo, que é o valor total do pedido, se tudo ocorrer bem
-*/
-export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|null> =>{
+
+export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number> =>{
 
     // Valor total como variável de retorno
-    let totalValue: number = 0;
+    let buyOrderValue: number = 0;
     
     // Início da transação
     const client = await pool.connect();
@@ -70,7 +67,11 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
                 throw new ApiError(404, `Produto ${items[i].productId} em quantidade insuficiente`);
             }
             
-            totalValue += (items[i].value * items[i].quantity);
+            buyOrderValue += (items[i].value * items[i].quantity);
+        }
+        if(buyOrderValue <= 0){
+            await client.query('ROLLBACK');
+            throw new ApiError(404, 'Pedido vazio ou inexistente');
         }
 
         // Comando para finalizar a transação
@@ -93,6 +94,77 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
     }
 
     // Retorna valor total do pedido
-    return totalValue;
+    return buyOrderValue;
 };
+
+const dbQueryGetUserEmail = `
+    SELECT email FROM users
+    WHERE id = $1
+`;
+
+export const getUserEmailData = async(userID: number): Promise<string> => {
+
+    // Busca o email do usuário na base de dados e valida sua existência
+    const email = ((await pool.query(dbQueryGetUserEmail, [userID])).rows[0]?.email);
+    if(!email || email.length == 0) 
+        throw new ApiError(404, `Email de usuário ${userID} não encontrado`);
+
+    // Retorna o email do usuário
+    return email;
+};
+
+const dbQueryGetPixTokken = `
+    SELECT tokken FROM pix_key
+`;
+
+export const getPixData = async(buyKey: ICFinishBuyInSchema, buyOrderValue: number, userEmail: string): Promise<ICPaymentData> => {
+
+    // Busca o tokken do pix cadastrado na base de dados
+    const rows = (await pool.query(dbQueryGetPixTokken)).rows;
+    if(rows.length === 0) throw new ApiError(404, 'Nenhuma chave pix cadastrada na base de dados');
+    if(rows.length > 1) throw new ApiError(500, 'Mais de uma chave pix cadastrada na base de dados');
+
+    // Extração do tokken
+    const tokken = rows[0].tokken;
+    if(!tokken) throw new ApiError(404, 'Erro interno, tente novamente mais tarde');
+
+    // Configuração de conta do mercado pago
+    const account = new MercadoPagoConfig({
+        accessToken: "TEST-769485626708230-092518-cf75c0010d5b3a38062eb173719fbb85-2415205915",
+        options: {timeout: 5000}
+    });
+
+    // Obtenção do pagamento para a conta da lojinha
+    const payment = new Payment(account);
+
+    // Corpo da requisição para o pix
+    const body = {
+        transaction_amount: buyOrderValue,
+        description: 'Pagamento de teste pix lojinha', 
+        payment_method_id: 'pix',
+        payer: {email: userEmail},
+        external_reference: String("LOJINHA-" + buyKey),
+        date_of_expiration: new Date(Date.now() + 1800000).toISOString(), // expira em 30 minutos
+    };
+
+    // Tentativa de criação do pagamento
+    try{
+        // Criação do pagamento
+        const pixPayment = await payment.create({body});
+
+        // Obtenção dos dados do pix
+        const pix = {
+            qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code, // O código "Copia e Cola"
+            pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64, // A imagem do QR Code
+        };
+
+        // Retorno dos dados do pix
+        return pix as ICPaymentData ;
+    } 
+    catch(error){
+        throw error;
+    }
+    
+};
+
 
