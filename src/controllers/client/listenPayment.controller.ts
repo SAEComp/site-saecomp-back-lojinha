@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { listenPaymentInSchema } from '../../schemas/lojinha/input/listenPaymentIn.schema';
-import { waitingClients } from './confirmPayment.controller';
+import { waitingClients } from '../../services/mercadoPagoWebhookEndpoint';
 
 const listenPayment = async(req: Request, res: Response): Promise<void> =>{
 

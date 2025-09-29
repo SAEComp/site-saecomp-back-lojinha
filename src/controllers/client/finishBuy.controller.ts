@@ -3,7 +3,9 @@ import { ApiError } from "../../errors/ApiError";
 import { finishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
 import { finishBuyOutSchema } from "../../schemas/lojinha/output/finishBuyOut.schema";
 import { ICFinishBuyOutSchema } from "../../schemas/lojinha/output/finishBuyOut.schema";
-import { finishBuyData, getPixData, getUserEmailData } from "../../repositories/client/finishBuyData.repository";
+import { finishBuyData} from "../../repositories/client/finishBuyData.repository";
+import getUserEmail from "../../services/getUserEmail";
+import getOrderPix from "../../services/getOrderPix";
 
 
 const finishBuy = async(req: Request, res: Response): Promise<void> => {
@@ -16,13 +18,13 @@ const finishBuy = async(req: Request, res: Response): Promise<void> => {
     if(userId === undefined) throw new ApiError(404, 'Usuário não encontrado');
     
     // Obtenção do email do usuário
-    const userEmail = await getUserEmailData(userId);    
+    const userEmail = await getUserEmail(userId);    
 
     // Finalização do pedido e obtenção do valor total
     const buyOrderValue = await finishBuyData(body);
     
     // Obtenção dos dados do pix
-    const paymentData = await getPixData(req.body, buyOrderValue, userEmail);
+    const paymentData = await getOrderPix(body.buyOrderId, buyOrderValue, userEmail);
 
     // Construção do schema de saída
     const outSchema: ICFinishBuyOutSchema = {
