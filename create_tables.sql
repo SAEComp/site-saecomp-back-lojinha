@@ -67,10 +67,10 @@ CREATE TABLE IF NOT EXISTS punctuation(
 	score			INTEGER			CHECK(score >= 0) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS pix_key(
+CREATE TABLE IF NOT EXISTS pix_keys(
 	id				BIGSERIAL		PRIMARY KEY,
 	name			TEXT			NOT NULL,
 	city			TEXT			NOT NULL,
-	pix_key         TEXT			DEFAULT NULL,		
-	tokken			TEXT			NOT NULL,
+	pix_key         	TEXT			DEFAULT NULL,		
+	token			TEXT			NOT NULL
 );
