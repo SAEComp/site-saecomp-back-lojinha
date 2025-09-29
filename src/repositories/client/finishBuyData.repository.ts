@@ -1,6 +1,9 @@
 import pool from "../../database/connection";
-import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
 import { ApiError } from "../../errors/ApiError";
+import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
+import { ICPaymentData } from "../../schemas/lojinha/output/finishBuyOut.schema";
+import { MercadoPagoConfig, Payment } from "mercadopago"
+
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -27,17 +30,11 @@ const dbQueryUpdateProductAfterFinishedBuyOrder = `
         AND quantity >= $1
 `;
 
-/* 
-    Chamada da função de repositório para finalizar o pedido
-    A função retorna:
-        - null, se o pedido não existir ou estiver vazio
-        - número negativo, se algum produto estiver com quantidade insuficiente (o número negativo é o id do produto)
-        - número positivo, que é o valor total do pedido, se tudo ocorrer bem
-*/
-export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|null> =>{
+
+export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number> =>{
 
     // Valor total como variável de retorno
-    let totalValue: number = 0;
+    let buyOrderValue: number = 0;
     
     // Início da transação
     const client = await pool.connect();
@@ -70,7 +67,11 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
                 throw new ApiError(404, `Produto ${items[i].productId} em quantidade insuficiente`);
             }
             
-            totalValue += (items[i].value * items[i].quantity);
+            buyOrderValue += (items[i].value * items[i].quantity);
+        }
+        if(buyOrderValue <= 0){
+            await client.query('ROLLBACK');
+            throw new ApiError(404, 'Pedido vazio ou inexistente');
         }
 
         // Comando para finalizar a transação
@@ -93,6 +94,9 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number|
     }
 
     // Retorna valor total do pedido
-    return totalValue;
+    return buyOrderValue;
 };
+
+
+
 

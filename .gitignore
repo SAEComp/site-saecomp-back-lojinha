@@ -3,3 +3,5 @@ node_modules/
 dist/
 keys
 backup/
+upload/
+tests/

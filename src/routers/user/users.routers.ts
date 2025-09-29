@@ -4,6 +4,8 @@ import getProduct from "../../controllers/client/getProduct.controller";
 import addToCart from "../../controllers/client/addToCart.controller";
 import addComment from "../../controllers/client/addComment.controller";
 import finishBuy from "../../controllers/client/finishBuy.controller";
+import listenPayment from "../../controllers/client/listenPayment.controller";
+import { confirmPayment } from "../../controllers/client/confirmPayment.controller";
 import registerPayment from "../../controllers/client/registerPayment.controller";
 import getCart from "../../controllers/client/getCart.controller";
 import deleteCart from "../../controllers/client/deleteCart.controller";
@@ -21,6 +23,8 @@ userRouter.delete("/cart", deleteCart);
 userRouter.delete("/item", deleteItem);
 userRouter.post("/comment", addComment);
 userRouter.post("/finish-order", finishBuy);
-userRouter.post("/pay-order", registerPayment);
+userRouter.get("/listen-payment", listenPayment);
+userRouter.post("/confirm-payment", confirmPayment); 
+userRouter.post("/register-payment", registerPayment);
 
 export default userRouter;
