@@ -16,13 +16,13 @@ const finishBuy = async(req: Request, res: Response): Promise<void> => {
     if(userId === undefined) throw new ApiError(404, 'Usuário não encontrado');
     
     // Obtenção do email do usuário
-    const userEmail = await getUserEmailData(userId);
+    const userEmail = await getUserEmailData(userId);    
 
     // Finalização do pedido e obtenção do valor total
     const buyOrderValue = await finishBuyData(body);
     
     // Obtenção dos dados do pix
-    const paymentData = await getPixData(req.body.buyKey, buyOrderValue, userEmail);
+    const paymentData = await getPixData(req.body, buyOrderValue, userEmail);
 
     // Construção do schema de saída
     const outSchema: ICFinishBuyOutSchema = {
