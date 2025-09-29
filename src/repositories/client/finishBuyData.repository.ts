@@ -152,23 +152,18 @@ export const getPixData = async(buyKey: ICFinishBuyInSchema, buyOrderValue: numb
     };
 
     // Tentativa de criação do pagamento
-    try{
-        // Criação do pagamento
-        const pixPayment = await paymentAPI.create({body});
+    // Criação do pagamento
+    const pixPayment = await paymentAPI.create({body});
 
-        // Obtenção dos dados do pix
-        const pix = {
-            paymentId: pixPayment?.id,
-            pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code,
-            qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64,
-        };
+    // Obtenção dos dados do pix
+    const pix = {
+        paymentId: pixPayment?.id,
+        pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code,
+        qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64,
+    };
 
-        // Retorno dos dados do pix
-        return pix as ICPaymentData ;
-    } 
-    catch(error){
-        throw error;
-    }
+    // Retorno dos dados do pix
+    return pix as ICPaymentData ;
     
 };
 
