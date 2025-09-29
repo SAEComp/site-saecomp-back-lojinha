@@ -3,10 +3,6 @@ import { ApiError } from "../../errors/ApiError";
 import { addProductImageInSchema } from "../../schemas/lojinha/input/addProductImageIn.schema";
 import multer from "multer" 
 import fs from "fs";
-import dotenv from "dotenv"
-
-// Carrega as variáveis de ambiente do arquivo .env
-dotenv.config();
 
 // Cria o diretório de upload se não existir
 const uploadDir = process.env.UPLOAD_IMAGES_DIR || 'upload';
