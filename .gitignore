@@ -4,3 +4,4 @@ dist/
 keys
 backup/
 upload/
+tests/
