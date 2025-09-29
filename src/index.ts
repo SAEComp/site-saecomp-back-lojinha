@@ -12,6 +12,7 @@ const port: number = 3000;
 
 // ================= middlewares ================= //
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 app.use(authenticate());
 
 // ================= routers ================= //

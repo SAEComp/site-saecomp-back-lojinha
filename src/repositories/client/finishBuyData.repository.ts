@@ -98,14 +98,16 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number>
 };
 
 const dbQueryGetUserEmail = `
-    SELECT email FROM users
+    SELECT 
+        email as "email" 
+    FROM users
     WHERE id = $1
 `;
 
 export const getUserEmailData = async(userID: number): Promise<string> => {
 
     // Busca o email do usuário na base de dados e valida sua existência
-    const email = ((await pool.query(dbQueryGetUserEmail, [userID])).rows[0]?.email);
+    const email = (await pool.query(dbQueryGetUserEmail, [userID])).rows[0]?.email;
     if(!email || email.length == 0) 
         throw new ApiError(404, `Email de usuário ${userID} não encontrado`);
 
@@ -113,29 +115,31 @@ export const getUserEmailData = async(userID: number): Promise<string> => {
     return email;
 };
 
-const dbQueryGetPixTokken = `
-    SELECT tokken FROM pix_key
+const dbQueryGetPixToken = `
+    SELECT 
+        token as "token" 
+    FROM pix_keys
 `;
 
 export const getPixData = async(buyKey: ICFinishBuyInSchema, buyOrderValue: number, userEmail: string): Promise<ICPaymentData> => {
 
-    // Busca o tokken do pix cadastrado na base de dados
-    const rows = (await pool.query(dbQueryGetPixTokken)).rows;
+    // Busca o token do pix cadastrado na base de dados
+    const rows = (await pool.query(dbQueryGetPixToken)).rows;
     if(rows.length === 0) throw new ApiError(404, 'Nenhuma chave pix cadastrada na base de dados');
     if(rows.length > 1) throw new ApiError(500, 'Mais de uma chave pix cadastrada na base de dados');
 
-    // Extração do tokken
-    const tokken = rows[0].tokken;
-    if(!tokken) throw new ApiError(404, 'Erro interno, tente novamente mais tarde');
+    // Extração do token
+    const token: string = rows[0].token;
+    if(!token) throw new ApiError(404, 'Erro interno, tente novamente mais tarde');
 
     // Configuração de conta do mercado pago
     const account = new MercadoPagoConfig({
-        accessToken: "TEST-769485626708230-092518-cf75c0010d5b3a38062eb173719fbb85-2415205915",
+        accessToken: token,
         options: {timeout: 5000}
     });
 
     // Obtenção do pagamento para a conta da lojinha
-    const payment = new Payment(account);
+    const paymentAPI = new Payment(account);
 
     // Corpo da requisição para o pix
     const body = {
@@ -143,19 +147,20 @@ export const getPixData = async(buyKey: ICFinishBuyInSchema, buyOrderValue: numb
         description: 'Pagamento de teste pix lojinha', 
         payment_method_id: 'pix',
         payer: {email: userEmail},
-        external_reference: String("LOJINHA-" + buyKey),
+        external_reference: "LOJINHA-" + String(buyKey.buyOrderId),
         date_of_expiration: new Date(Date.now() + 1800000).toISOString(), // expira em 30 minutos
     };
 
     // Tentativa de criação do pagamento
     try{
         // Criação do pagamento
-        const pixPayment = await payment.create({body});
+        const pixPayment = await paymentAPI.create({body});
 
         // Obtenção dos dados do pix
         const pix = {
-            qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code, // O código "Copia e Cola"
-            pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64, // A imagem do QR Code
+            paymentId: pixPayment?.id,
+            pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code,
+            qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64,
         };
 
         // Retorno dos dados do pix
@@ -166,5 +171,7 @@ export const getPixData = async(buyKey: ICFinishBuyInSchema, buyOrderValue: numb
     }
     
 };
+
+
 
 
