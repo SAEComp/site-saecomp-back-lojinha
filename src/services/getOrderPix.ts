@@ -1,5 +1,3 @@
-import pool from "../database/connection";
-import { ApiError } from "../errors/ApiError";
 import { ICPaymentData } from "../schemas/lojinha/output/finishBuyOut.schema";
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import getAccountToken from "./getAccountToken";
