@@ -6,22 +6,22 @@ import { ICGetStatisticsOutSchema } from "../../schemas/lojinha/output/getStatis
 const dbQueryGetOrderStats = `
     SELECT 
         COUNT(id) FILTER (WHERE status != 'cart') AS "totalOrders",
-        COUNT(id) FILTER (WHERE status = 'pendingPayment') AS "pendingOrders",
         COUNT(id) FILTER (WHERE status = 'finishedPayment') AS "finishedOrders",
         COUNT(id) FILTER (WHERE status = 'canceled') AS "canceledOrders"
     FROM buy_orders
 `;
 
-const dbQueryGetProductsStats= `
+const dbQueryGetProductsStats = `
     SELECT 
         COUNT(id) FILTER (WHERE soft_delete = false) AS "stockProducts",
-        SUM(products.value * products.quantity) AS "stockItems" 
+        SUM(quantity) FILTER (WHERE soft_delete = false) AS "stockItems" 
     FROM products
 `;
 
-const dbQueryGetRevenue = `
+const dbQueryGetTotalRevenueAndSoldItems = `
     SELECT 
-        SUM(i.quantity * i.value) AS "totalRevenueValue"
+        SUM(i.quantity * i.value) AS "totalRevenueValue",
+        SUM(i.quantity) AS "soldItems"
     FROM items i
     INNER JOIN buy_orders bo ON i.buy_order_id = bo.id
     WHERE
@@ -95,7 +95,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
         statistics = {...statistics, ...queryGetProductsStats.rows[0]};
 
         // Obtenção das estatísticas de receita e verificação de erros
-        const queryGetRevenue = (await client.query(dbQueryGetRevenue));
+        const queryGetRevenue = (await client.query(dbQueryGetTotalRevenueAndSoldItems));
         if(!queryGetRevenue.rowCount){
             await client.query('ROLLBACK');
             throw new ApiError(404, "Não foi possível obter as estatísticas de receita");
