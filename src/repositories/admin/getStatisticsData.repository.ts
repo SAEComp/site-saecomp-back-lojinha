@@ -80,7 +80,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção das estatísticas de pedidos e verificação de erros
         const queryGetOrderStats = (await client.query(dbQueryGetOrderStats));
-        if(!queryGetOrderStats.rowCount){
+        if(queryGetOrderStats.rowCount == 0){
             await client.query('ROLLBACK');
             throw new ApiError(404, "Não foi possível obter as estatísticas de pedidos");
         }
@@ -88,7 +88,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção das estatísticas de produtos e verificação de erros
         const queryGetProductsStats = (await client.query(dbQueryGetProductsStats));
-        if(!queryGetProductsStats.rowCount){
+        if(queryGetProductsStats.rowCount == 0){
             await client.query('ROLLBACK');
             throw new ApiError(404, "Não foi possível obter as estatísticas de produtos");
         }
@@ -96,7 +96,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção das estatísticas de receita e verificação de erros
         const queryGetRevenue = (await client.query(dbQueryGetTotalRevenueAndSoldItems));
-        if(!queryGetRevenue.rowCount){
+        if(queryGetRevenue.rowCount == 0){
             await client.query('ROLLBACK');
             throw new ApiError(404, "Não foi possível obter as estatísticas de receita");
         }
@@ -104,7 +104,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção dos produtos com mais receita, e verificação de erros
         const queryProductsWithMoreRevenue = (await client.query(dbQueryProductsWithMoreRevenue, [moreRevenueQnt]));
-        if(!queryProductsWithMoreRevenue.rowCount){
+        if(queryProductsWithMoreRevenue.rowCount == 0){
             await client.query('ROLLBACK');
             throw new ApiError(404, "Não foi possível obter os produtos com mais receita");
         }
@@ -112,7 +112,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção dos produtos com mais vendas, e verificação de erros
         const queryProductsWithMoreSolds = (await client.query(dbQueryProductsWithMoreSolds, [moreSoldQnt]));
-        if(!queryProductsWithMoreSolds.rowCount){
+        if(queryProductsWithMoreSolds.rowCount == 0){
             await client.query('ROLLBACK');
             throw new ApiError(404, "Não foi possível obter os produtos com mais vendas");
         }
