@@ -1,4 +1,5 @@
 import express from "express";
+import authenticate from "../../middlewares/authenticate";
 import addPixKey from "../../controllers/admin/addPixKey.controller";
 import getPixKey from "../../controllers/admin/getPixKey.controller";
 import removePixKey from "../../controllers/admin/removePixKey.controller";
@@ -9,7 +10,7 @@ import getStatistics from "../../controllers/admin/getStatistics.controller";
 import getBuyOrderPage from "../../controllers/admin/getBuyOrderPage.controller";
 import getEntryHistoryPage from "../../controllers/admin/getEntryHistoryPage.controller";
 import {addProductImage, upload} from "../../controllers/admin/addProductImage.controller";
-import authenticate from "../../middlewares/authenticate";
+import getPunctuationPage from "../../controllers/admin/getPunctuationPage.controller";
 
 // Instanciação do express
 const adminRouter = express.Router();
@@ -25,6 +26,7 @@ adminRouter.get('/statistics', authenticate(['lojinha:stats']), getStatistics);
 adminRouter.get('/orders-history', authenticate(['lojinha:orders-log']), getBuyOrderPage);
 adminRouter.get('/entries-history', authenticate(['lojinha:entries-log']),getEntryHistoryPage);
 adminRouter.post('/files/product', authenticate(['lojinha:product-management']), upload.single('productImage'), addProductImage);
+adminRouter.get('/punctuations', authenticate(['lojinha:punctuation-log']), getPunctuationPage);
 
 // Definição do tratamento de requisições
 export default adminRouter;

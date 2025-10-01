@@ -1,4 +1,5 @@
 import express from "express";
+import authenticate from "../../middlewares/authenticate";
 import getProductPage from "../../controllers/client/getProductPage.controller";
 import getProduct from "../../controllers/client/getProduct.controller";
 import addToCart from "../../controllers/client/addToCart.controller";
@@ -10,7 +11,7 @@ import registerPayment from "../../controllers/client/registerPayment.controller
 import getCart from "../../controllers/client/getCart.controller";
 import deleteCart from "../../controllers/client/deleteCart.controller";
 import deleteItem from "../../controllers/client/deleteItem.controller";
-import authenticate from "../../middlewares/authenticate";
+import getPunctuation from "../../controllers/client/getPunctuation.controller";
 
 // Instanciação do express
 const userRouter = express.Router();
@@ -27,5 +28,6 @@ userRouter.post("/finish-order", authenticate(['lojinha:finish-order']),finishBu
 userRouter.get("/listen-payment", authenticate(['lojinha:finish-order']),listenPayment);
 userRouter.post("/confirm-payment",confirmPayment); // sem autenticação pois é endoint para mercado pago
 userRouter.post("/register-payment", authenticate(['lojinha:finish-order']),registerPayment);
+userRouter.get("/punctuation", authenticate(['lojinha:punctuation']), getPunctuation);
 
 export default userRouter;
