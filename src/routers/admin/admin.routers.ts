@@ -9,21 +9,22 @@ import getStatistics from "../../controllers/admin/getStatistics.controller";
 import getBuyOrderPage from "../../controllers/admin/getBuyOrderPage.controller";
 import getEntryHistoryPage from "../../controllers/admin/getEntryHistoryPage.controller";
 import {addProductImage, upload} from "../../controllers/admin/addProductImage.controller";
+import authenticate from "../../middlewares/authenticate";
 
 // Instanciação do express
 const adminRouter = express.Router();
 
 // Definição das rotas de administração
-adminRouter.post('/pix-key', addPixKey);
-adminRouter.get('/pix-key', getPixKey);
-adminRouter.delete('/pix-key', removePixKey);
-adminRouter.post('/product', addProduct);
-adminRouter.put('/product', editProduct);
-adminRouter.delete('/product', removeProduct);
-adminRouter.get('/statistics', getStatistics);
-adminRouter.get('/orders-history', getBuyOrderPage);
-adminRouter.get('/entries-history', getEntryHistoryPage);
-adminRouter.post('/files/product', upload.single('productImage'), addProductImage);
+adminRouter.post('/pix-key', authenticate(['lojinha:pix-key-management']), addPixKey);
+adminRouter.get('/pix-key', authenticate(['lojinha:pix-key-management']), getPixKey);
+adminRouter.delete('/pix-key', authenticate(['lojinha:pix-management']), removePixKey);
+adminRouter.post('/product', authenticate(['lojinha:product-management']), addProduct);
+adminRouter.put('/product', authenticate(['lojinha:product-management']), editProduct);
+adminRouter.delete('/product', authenticate(['lojinha:product-management']), removeProduct);
+adminRouter.get('/statistics', authenticate(['lojinha:stats']), getStatistics);
+adminRouter.get('/orders-history', authenticate(['lojinha:orders-log']), getBuyOrderPage);
+adminRouter.get('/entries-history', authenticate(['lojinha:entries-log']),getEntryHistoryPage);
+adminRouter.post('/files/product', authenticate(['lojinha:product-management']), upload.single('productImage'), addProductImage);
 
 // Definição do tratamento de requisições
 export default adminRouter;

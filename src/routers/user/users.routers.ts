@@ -10,21 +10,22 @@ import registerPayment from "../../controllers/client/registerPayment.controller
 import getCart from "../../controllers/client/getCart.controller";
 import deleteCart from "../../controllers/client/deleteCart.controller";
 import deleteItem from "../../controllers/client/deleteItem.controller";
+import authenticate from "../../middlewares/authenticate";
 
 // Instanciação do express
 const userRouter = express.Router();
 
 // Definição do tratamento de requisições
-userRouter.get("/products", getProductPage);
-userRouter.get("/product", getProduct);
-userRouter.get("/cart", getCart);
-userRouter.post("/cart", addToCart);
-userRouter.delete("/cart", deleteCart);
-userRouter.delete("/item", deleteItem);
-userRouter.post("/comment", addComment);
-userRouter.post("/finish-order", finishBuy);
-userRouter.get("/listen-payment", listenPayment);
-userRouter.post("/confirm-payment", confirmPayment); 
-userRouter.post("/register-payment", registerPayment);
+userRouter.get("/products", authenticate(['lojinha:product-home']), getProductPage);
+userRouter.get("/product", authenticate(['lojinha:product-details']), getProduct);
+userRouter.get("/cart", authenticate(['lojinha:cart']),getCart);
+userRouter.post("/cart", authenticate(['lojinha:cart']),addToCart);
+userRouter.delete("/cart", authenticate(['lojinha:cart']),deleteCart);
+userRouter.delete("/item", authenticate(['lojinha:cart']), deleteItem);
+userRouter.post("/comment", authenticate(['lojinha:add-comment']),addComment);
+userRouter.post("/finish-order", authenticate(['lojinha:finish-order']),finishBuy);
+userRouter.get("/listen-payment", authenticate(['lojinha:finish-order']),listenPayment);
+userRouter.post("/confirm-payment",confirmPayment); // sem autenticação pois é endoint para mercado pago
+userRouter.post("/register-payment", authenticate(['lojinha:finish-order']),registerPayment);
 
 export default userRouter;
