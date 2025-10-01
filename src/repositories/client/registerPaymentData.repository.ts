@@ -20,15 +20,14 @@ const dbQueryGetTotalValueOfOrder = `
 `;
 
 const dbQueryUpdateUserScore = `
-    UPDATE punctuation
+    UPDATE punctuations
     SET score = $1
     WHERE user_id = $2
 `;
 
 const dbQueryCreateUserPunctuation = `
-    INSERT INTO punctuation (user_id, score)
+    INSERT INTO punctuations (user_id, score)
     VALUES ($1, $2)
-    RETURNING id
 `;
 
 export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
@@ -66,8 +65,8 @@ export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): P
         // Se não houver pontuação, cria uma nova
         if(!qntPunctuationUpdate){
             
-            const punctuationId = (await client.query(dbQueryCreateUserPunctuation, [userId, score])).rows[0]?.id;
-            if(!punctuationId){
+            const qntCreatedPunctuation = (await client.query(dbQueryCreateUserPunctuation, [userId, score])).rowCount;
+            if(!qntCreatedPunctuation){
                 await client.query('ROLLBACK');
                 throw new ApiError(404, 'Não foi possível atualizar a pontuação do usuário');
             }

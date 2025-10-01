@@ -12,6 +12,8 @@ import getCart from "../../controllers/client/getCart.controller";
 import deleteCart from "../../controllers/client/deleteCart.controller";
 import deleteItem from "../../controllers/client/deleteItem.controller";
 import getPunctuation from "../../controllers/client/getPunctuation.controller";
+import getPunctuationPage from "../../controllers/admin/getPunctuationPage.controller";
+
 
 // Instanciação do express
 const userRouter = express.Router();
@@ -29,5 +31,7 @@ userRouter.get("/listen-payment", authenticate(['lojinha:finish-order']),listenP
 userRouter.post("/confirm-payment",confirmPayment); // sem autenticação pois é endoint para mercado pago
 userRouter.post("/register-payment", authenticate(['lojinha:finish-order']),registerPayment);
 userRouter.get("/punctuation", authenticate(['lojinha:punctuation']), getPunctuation);
+userRouter.get('/punctuations', authenticate(['lojinha:punctuation-log']), getPunctuationPage);
+
 
 export default userRouter;
