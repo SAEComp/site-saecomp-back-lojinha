@@ -18,7 +18,7 @@ const dbQuerySearchCart = `
 
 const dbQueryCreateCart = `
     INSERT INTO buy_orders (user_id, date, status)
-    VALUES ($1, CURRENT_DATE, 'cart')
+    VALUES ($1, CURRENT_TIMESTAMP, 'cart')
     RETURNING id
 `;
 

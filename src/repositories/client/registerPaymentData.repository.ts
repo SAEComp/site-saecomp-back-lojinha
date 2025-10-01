@@ -5,7 +5,7 @@ import { ApiError } from "../../errors/ApiError";
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
-    SET status = 'finishedPayment', "date" = CURRENT_DATE
+    SET status = 'finishedPayment', "date" = CURRENT_TIMESTAMP
     WHERE 
         id = $1
         AND status = 'pendingPayment'
