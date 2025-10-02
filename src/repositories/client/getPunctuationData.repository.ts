@@ -14,7 +14,7 @@ const dbQueryGetPunctuation = `
 export const getPunctuationData = async(userId: number): Promise<ICGetPunctuationOutSchema> => {
     // Obtenção da pontuação do usuário
     const punctuation = (await pool.query(dbQueryGetPunctuation, [userId])).rows[0];
-    if(punctuation.userPunctuation === undefined || !punctuation.userName)
+    if(punctuation.userPunctuation === undefined || punctuation.userPunctuation == null || !punctuation.userName)
         throw new ApiError(404, 'Pontuação do usuário não encontrada');
 
     // Retorno da pontuação do usuário

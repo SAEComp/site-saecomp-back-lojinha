@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import { getPunctuationPageData } from '../../repositories/admin/getPunctuationPageData.repository';
+import { getPunctuationPageData } from '../../repositories/client/getPunctuationPageData.repository';
 import { getPunctuationPageInSchema } from '../../schemas/lojinha/input/getPunctuationPageIn.schema';
 import { getPunctuationPageOutSchema, ICGetPunctuationPageOutSchema } from '../../schemas/lojinha/output/getPunctuationPageOut.schema';
 

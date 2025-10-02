@@ -12,7 +12,7 @@ import getCart from "../../controllers/client/getCart.controller";
 import deleteCart from "../../controllers/client/deleteCart.controller";
 import deleteItem from "../../controllers/client/deleteItem.controller";
 import getPunctuation from "../../controllers/client/getPunctuation.controller";
-import getPunctuationPage from "../../controllers/admin/getPunctuationPage.controller";
+import getPunctuationPage from "../../controllers/client/getPunctuationPage.controller";
 
 
 // Instanciação do express
