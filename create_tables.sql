@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS products(
 CREATE TABLE IF NOT EXISTS entry_histories(
 	id				BIGSERIAL	PRIMARY KEY,
 	product_id		INT 		NOT NULL REFERENCES products(id) ON DELETE CASCADE, 
-	date			DATE 		NOT NULL DEFAULT CURRENT_DATE,
+	date			TIMESTAMP 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	value			REAL		CHECK(value >= 0) NOT NULL,
 	quantity		INTEGER		NOT NULL
 );
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS entry_histories(
 CREATE TABLE IF NOT EXISTS buy_orders(
 	id				BIGSERIAL			PRIMARY KEY,
 	user_id			INT 				REFERENCES users(id) ON DELETE CASCADE,
-	date			DATE 				NOT NULL DEFAULT CURRENT_DATE,
+	date			TIMESTAMP 			NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	status			status_t			NOT NULL DEFAULT 'cart'
 );
 
@@ -58,12 +58,11 @@ CREATE TABLE IF NOT EXISTS comments(
 	id				BIGSERIAL		PRIMARY KEY,
 	user_id			INT 			NOT NULL REFERENCES users(id),
 	content			TEXT			NOT NULL,
-	date 			DATE			NOT NULL DEFAULT CURRENT_DATE
+	date 			TIMESTAMP		NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS punctuation(
-	id				BIGSERIAL		PRIMARY KEY,
-	user_id			INT 			NOT NULL REFERENCES users(id),
+CREATE TABLE IF NOT EXISTS punctuations(
+	user_id			INT 			PRIMARY KEY NOT NULL REFERENCES users(id),
 	score			INTEGER			CHECK(score >= 0) NOT NULL
 );
 
@@ -71,6 +70,6 @@ CREATE TABLE IF NOT EXISTS pix_keys(
 	id				BIGSERIAL		PRIMARY KEY,
 	name			TEXT			NOT NULL,
 	city			TEXT			NOT NULL,
-	pix_key         	TEXT			DEFAULT NULL,		
+	pix_key         TEXT			DEFAULT NULL,		
 	token			TEXT			NOT NULL
 );

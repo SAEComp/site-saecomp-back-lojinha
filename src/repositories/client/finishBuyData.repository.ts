@@ -7,7 +7,7 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
-    SET status = 'pendingPayment', "date" = CURRENT_DATE
+    SET status = 'pendingPayment', "date" = CURRENT_TIMESTAMP
     WHERE id = $1
 `;
 
