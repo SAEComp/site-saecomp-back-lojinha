@@ -21,15 +21,15 @@ const userRouter = express.Router();
 // Definição do tratamento de requisições
 userRouter.get("/products", authenticate(['lojinha:product-home']), getProductPage);
 userRouter.get("/product", authenticate(['lojinha:product-details']), getProduct);
-userRouter.get("/cart", authenticate(['lojinha:cart']),getCart);
-userRouter.post("/cart", authenticate(['lojinha:cart']),addToCart);
-userRouter.delete("/cart", authenticate(['lojinha:cart']),deleteCart);
+userRouter.get("/cart", authenticate(['lojinha:cart']), getCart);
+userRouter.post("/cart", authenticate(['lojinha:cart']), addToCart);
+userRouter.delete("/cart", authenticate(['lojinha:cart']), deleteCart);
 userRouter.delete("/item", authenticate(['lojinha:cart']), deleteItem);
-userRouter.post("/comment", authenticate(['lojinha:add-comment']),addComment);
-userRouter.post("/finish-order", authenticate(['lojinha:finish-order']),finishBuy);
-userRouter.get("/listen-payment", authenticate(['lojinha:finish-order']),listenPayment);
-userRouter.post("/confirm-payment",confirmPayment); // sem autenticação pois é endoint para mercado pago
-userRouter.post("/register-payment", authenticate(['lojinha:finish-order']),registerPayment);
+userRouter.post("/comment", authenticate(['lojinha:add-comment']), addComment);
+userRouter.post("/finish-order", authenticate(['lojinha:finish-order']), finishBuy);
+userRouter.get("/listen-payment", authenticate(['lojinha:finish-order']), listenPayment);
+userRouter.post("/confirm-payment", confirmPayment); // sem autenticação pois é endoint para mercado pago
+userRouter.post("/register-payment", authenticate(['lojinha:finish-order']), registerPayment);
 userRouter.get("/punctuation", authenticate(['lojinha:punctuation']), getPunctuation);
 userRouter.get('/punctuations', authenticate(['lojinha:punctuation-log']), getPunctuationPage);
 

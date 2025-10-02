@@ -23,7 +23,7 @@ adminRouter.put('/product', authenticate(['lojinha:product-management']), editPr
 adminRouter.delete('/product', authenticate(['lojinha:product-management']), removeProduct);
 adminRouter.get('/statistics', authenticate(['lojinha:stats']), getStatistics);
 adminRouter.get('/orders-history', authenticate(['lojinha:orders-log']), getBuyOrderPage);
-adminRouter.get('/entries-history', authenticate(['lojinha:entries-log']),getEntryHistoryPage);
+adminRouter.get('/entries-history', authenticate(['lojinha:entries-log']), getEntryHistoryPage);
 adminRouter.post('/files/product', authenticate(['lojinha:product-management']), upload.single('productImage'), addProductImage);
 
 // Definição do tratamento de requisições
