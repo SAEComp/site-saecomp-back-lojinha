@@ -3,8 +3,8 @@ import { ApiError } from "../../errors/ApiError";
 import { ICCancelPaymentInSchema } from "../../schemas/lojinha/input/cancelPaymentIn.schema";
 
 const dbQueryRevertOrder =`
-    UPDATE products p
-        SET p.quantity = p.quantity + ord.quantity
+    UPDATE products 
+        SET quantity = products.quantity + ord.quantity
     FROM (
         SELECT 
             i.product_id AS product_id,
@@ -15,8 +15,8 @@ const dbQueryRevertOrder =`
             bo.id = $1 
             AND bo.status = 'pendingPayment'
     ) AS ord
-    WHERE p.id = ord.product_id
-    RETURNING p.id
+    WHERE products.id = ord.product_id
+    RETURNING products.id
 `
 
 const dbQueryCancelOrder = `

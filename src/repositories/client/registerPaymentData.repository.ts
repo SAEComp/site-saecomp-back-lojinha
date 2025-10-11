@@ -30,7 +30,7 @@ const dbQueryCreateUserPunctuation = `
     VALUES ($1, $2)
 `;
 
-export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
+export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema> => {
     
     // Variável de retorno
     let returned : ICRegisterPaymentOutSchema;
