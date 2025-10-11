@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS pix_keys(
 
 CREATE TABLE IF NOT EXISTS pix_payments(
 	buy_order_id	INT 			PRIMARY KEY NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
-	payment_id		INT 			NOT NULL REFERENCES pix_keys(id) ON DELETE CASCADE,
+	payment_id		INT 			NOT NULL,
 	qr_code			TEXT			NOT NULL,
-	pix_copia_cola	TEXT			NOT NULL,
+	pix_copia_cola	TEXT			NOT NULL
 );
