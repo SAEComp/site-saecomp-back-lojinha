@@ -2,6 +2,7 @@ import express from "express";
 import authenticate from "../../middlewares/authenticate";
 import getProductPage from "../../controllers/client/getProductPage.controller";
 import getProduct from "../../controllers/client/getProduct.controller";
+import getPendingPayments from "../../controllers/client/getPendingPayments.controller";
 import addToCart from "../../controllers/client/addToCart.controller";
 import addComment from "../../controllers/client/addComment.controller";
 import finishBuy from "../../controllers/client/finishBuy.controller";
@@ -15,13 +16,13 @@ import deleteItem from "../../controllers/client/deleteItem.controller";
 import getPunctuation from "../../controllers/client/getPunctuation.controller";
 import getPunctuationPage from "../../controllers/client/getPunctuationPage.controller";
 
-
 // Instanciação do express
 const userRouter = express.Router();
 
 // Definição do tratamento de requisições
 userRouter.get("/products", authenticate(['lojinha:product-home']), getProductPage);
 userRouter.get("/product", authenticate(['lojinha:product-details']), getProduct);
+userRouter.get("/pending-payment", /*authenticate(['lojinha:cart','lojinha:finish-order']),*/ getPendingPayments);
 userRouter.get("/cart", authenticate(['lojinha:cart']), getCart);
 userRouter.post("/cart", authenticate(['lojinha:cart']), addToCart);
 userRouter.delete("/cart", authenticate(['lojinha:cart']), deleteCart);
