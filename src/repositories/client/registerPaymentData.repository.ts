@@ -33,7 +33,7 @@ const dbQueryCreateUserPunctuation = `
 export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
     
     // Variável de retorno
-    let returned : ICRegisterPaymentOutSchema|null = null;
+    let returned : ICRegisterPaymentOutSchema;
 
     // Conexão com o banco
     const client = await pool.connect();

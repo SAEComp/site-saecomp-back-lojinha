@@ -3,7 +3,7 @@ import { ApiError } from "../../errors/ApiError";
 import { mercadoPagoWebhookEndpoint } from "../../services/mercadoPagoWebhookEndpoint";
 
 
-export const confirmPayment = async(req: Request, res: Response): Promise<void> =>{
+const confirmPayment = async(req: Request, res: Response): Promise<void> =>{
 
     // Extração do tópico e id do recurso da query ou do corpo da requisição
     const topic = req.query.topic || req.body.type;
@@ -16,3 +16,5 @@ export const confirmPayment = async(req: Request, res: Response): Promise<void> 
     await mercadoPagoWebhookEndpoint(topic, resourceId);
     
 };
+
+export default confirmPayment;
