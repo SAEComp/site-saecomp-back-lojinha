@@ -34,7 +34,7 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
         // Extração do id do pedido de compra
         const buyOrderId = Number(paymentStatus?.external_reference);
         if(!buyOrderId) throw new ApiError(404, 'Erro na recepção do id do pedido de compra');
-        
+
         // Verifica se o pagamento foi aprovado
         if(paymentStatus.status == 'approved'){
             // Verifica se existe algum cliente aguardando por verificação de pagamento
@@ -52,7 +52,7 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
             }
 
             // Registra pagamento de pedido
-            registerPaymentData({buyOrderId: buyOrderId});
+            await registerPaymentData({buyOrderId: buyOrderId});
         }
 
         // Verifica se o pagamento foi aprovado
@@ -72,7 +72,7 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
             }
 
             // Cancela pagamento de pedido
-            cancelPaymentData({buyOrderId: buyOrderId});
+            await cancelPaymentData({buyOrderId: buyOrderId});
         }
 
     }
