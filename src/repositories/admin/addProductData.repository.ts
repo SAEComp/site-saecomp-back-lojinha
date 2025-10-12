@@ -1,4 +1,5 @@
 import pool from "../../database/connection";
+import { ApiError } from "../../errors/ApiError";
 import { ICAddProductInSchema } from "../../schemas/lojinha/input/addProductIn.schema";
 import { ICAddProductOutSchema } from "../../schemas/lojinha/output/addProductOut.schema";
 
@@ -56,7 +57,7 @@ export const addProductData = async(product: ICAddProductInSchema): Promise<ICAd
         const productId  = (await client.query(dbQueryAddProduct, values)).rows[0]?.id;
         if(!productId){
             await client.query('ROLLBACK');
-            throw new Error('Não foi possível adicionar o produto (código de barras já existente)');
+            throw new ApiError(404, 'Não foi possível adicionar o produto (código de barras já existente)');
         }
 
         /* 
@@ -66,7 +67,7 @@ export const addProductData = async(product: ICAddProductInSchema): Promise<ICAd
         const entryHistoryId = (await client.query(dbQueryAddEntryHistory, [productId, product.quantity, product.value])).rows[0]?.id;
         if(!entryHistoryId){
             await client.query('ROLLBACK');
-            throw new Error('Não foi possível registrar o histórico de entrada do produto');
+            throw new ApiError(404, 'Não foi possível registrar o histórico de entrada do produto');
         }
 
         // Se tudo ocorreu bem, confirma a transação, retornando o id do produto adicionado
