@@ -1,9 +1,7 @@
 import pool from "../../database/connection";
 import { ApiError } from "../../errors/ApiError";
+import getAccountToken from "../../services/getAccountToken";
 import { ICFinishBuyInSchema } from "../../schemas/lojinha/input/finishBuyIn.schema";
-import { ICPaymentData } from "../../schemas/lojinha/output/finishBuyOut.schema";
-import { MercadoPagoConfig, Payment } from "mercadopago"
-
 
 const dbQuerySetBuyOrderToFinalized = `
     UPDATE buy_orders
@@ -35,6 +33,10 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number>
 
     // Valor total como variável de retorno
     let buyOrderValue: number = 0;
+
+    // Verificação se a lojinha conta com o método de pagamento pix habilitado
+    const token = await getAccountToken(); 
+    if(!token) throw new ApiError(404, 'Método de pagamento pix indisponível no momento'); 
     
     // Início da transação
     const client = await pool.connect();
