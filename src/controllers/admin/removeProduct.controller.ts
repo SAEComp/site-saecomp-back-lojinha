@@ -6,10 +6,10 @@ import { removeProductData } from "../../repositories/admin/removeProductData.re
 const removeProduct = async(req: Request, res: Response): Promise<void> => {
  
     // Obtenção e validação dos dados de entrada
-    const body = removeProductInSchema.parse(req.body);
+    const query = removeProductInSchema.parse(req.query);
 
     // Remoção do produto no banco de dados e obtenção da quantidade de produtos editados
-    const qntRemoves = await removeProductData(body);
+    const qntRemoves = await removeProductData(query);
 
     // Se nenhum produto foi editado, lança um erro 404 (produto não encontrado)
     if(!qntRemoves) throw new ApiError(404, 'Produto não encontrado');
