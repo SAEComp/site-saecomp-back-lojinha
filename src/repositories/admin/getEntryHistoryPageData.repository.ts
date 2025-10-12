@@ -5,7 +5,7 @@ import { ICGetEntryHistoryPageOutSchema } from "../../schemas/lojinha/output/get
 export const getEntryHistoryPageData = async (pageSettings: ICGetEntryHistoryPageInSchema): Promise<ICGetEntryHistoryPageOutSchema> => {
   
     // Desestrutura os parâmetros de entrada
-    const { page, pageSize, productName, value, quantity, dateMin, dateMax } = pageSettings;
+    const { page, pageSize, productName, minValue, maxValue, minQuantity, maxQuantity, dateMin, dateMax } = pageSettings;
 
     // Monta filtros dinâmicos
     const filters: string[] = [];
@@ -17,13 +17,21 @@ export const getEntryHistoryPageData = async (pageSettings: ICGetEntryHistoryPag
         filters.push("p.name ILIKE $" + (params.length + 1));
         params.push(`%${productName}%`);
     }
-    if(value !== undefined) {
-        filters.push("eh.value = $" + (params.length + 1));
-        params.push(value);
+    if(minValue !== undefined) {
+        filters.push("eh.value >= $" + (params.length + 1));
+        params.push(minValue);
     }
-    if(quantity !== undefined) { // pode ser inicialmente zero
-        filters.push("eh.quantity = $" + (params.length + 1));
-        params.push(quantity);
+    if(maxValue !== undefined) {
+        filters.push("eh.value <= $" + (params.length + 1));
+        params.push(maxValue);
+    }
+    if(minQuantity !== undefined) { // pode ser inicialmente zero
+        filters.push("eh.quantity >= $" + (params.length + 1));
+        params.push(minQuantity);
+    }
+    if(maxQuantity !== undefined) { // pode ser inicialmente zero
+        filters.push("eh.quantity <= $" + (params.length + 1));
+        params.push(maxQuantity);
     }
     if(dateMin !== undefined) {
         filters.push("eh.date >= $" + (params.length + 1));
