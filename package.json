@@ -20,6 +20,8 @@
   "homepage": "https://github.com/SAEComp/site-saecomp-back-lojinha#readme",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.4",
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

@@ -9,6 +9,7 @@ import userRounter from "./routers/user/users.routers";
 import authenticate from "./middlewares/authenticate";
 import { errorHandler } from "./middlewares/errorHandler";
 import swaggerUi from 'swagger-ui-express';
+import corsMiddleware from "./middlewares/cors";
 
 
 // Instanciação do express
@@ -19,12 +20,14 @@ const port: number = 3000;
 
 // ================= middlewares ================= //
 app.use(express.json());
+app.use(corsMiddleware);
 app.use(express.urlencoded({extended: true}));
 
 // ================= routers ================= //
 app.use("/api/lojinha", userRounter);
 app.use("/api/lojinha/admin", adminRounter);
 
+app.use("/api/lojinha/docs/openapi.json", (req, res) => (res.json(openApiDoc)));
 app.use('/api/lojinha/docs', swaggerUi.serve, swaggerUi.setup(openApiDoc));
 
 // ================= error handler ================= //
