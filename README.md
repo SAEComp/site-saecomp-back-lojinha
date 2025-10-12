@@ -19,11 +19,9 @@ Esta API REST fornece todas as funcionalidades necessárias para o funcionamento
 - **Node.js** com **TypeScript**
 - **Express.js** - Framework web
 - **PostgreSQL** - Banco de dados
-- **JWT** - Autenticação
 - **Zod** - Validação de schemas
-- **Mercado Pago SDK** - Integração de pagamentos
+- **Mercado Pago SDK** - Integração de pagamentos e geração de códigos PIX
 - **Multer** - Upload de arquivos
-- **QR Code PIX** - Geração de códigos PIX
 
 ## 📁 Estrutura do Projeto
 
@@ -106,6 +104,7 @@ npm run dev
 - `POST /api/lojinha/admin/product` - Criar produto (admin)
 - `PUT /api/lojinha/admin/product` - Editar produto (admin)
 - `DELETE /api/lojinha/admin/product` - Remover produto (admin)
+- `POST /api/lojinha/admin/product/image` - Upload da imagem do produto (admin)
 
 #### 🛒 Carrinho
 - `GET /api/lojinha/cart` - Visualizar carrinho
@@ -113,11 +112,19 @@ npm run dev
 - `DELETE /api/lojinha/cart` - Limpar carrinho
 - `DELETE /api/lojinha/item` - Remover item específico
 
+Endpoints adicionais de cliente:
+- `GET /api/lojinha/pending-payments` - Listar pagamentos pendentes do usuário
+- `POST /api/lojinha/register-payment` - Registrar pagamento manual (ex.: quando confirmado fora do fluxo automático)
+
 #### 💳 Pagamentos
 - `POST /api/lojinha/finish-order` - Finalizar pedido
 - `GET /api/lojinha/listen-payment` - Verificar status do pagamento
 - `POST /api/lojinha/confirm-payment` - Webhook Mercado Pago
 - `POST /api/lojinha/register-payment` - Registrar pagamento manual
+
+Notas sobre pagamentos:
+- O fluxo principal utiliza Mercado Pago para gerar preferências/QR codes PIX. O projeto possui um endpoint que recebe webhooks do Mercado Pago (`POST /api/lojinha/confirm-payment`) e atualiza pedidos automaticamente.
+- Há também endpoints de escuta de eventos (`GET /api/lojinha/listen-payment`) para que o front possa receber os estados de pagamento de um pedido finalizado.
 
 #### ⭐ Pontuação
 - `GET /api/lojinha/punctuation` - Ver pontuação do usuário
@@ -131,6 +138,11 @@ npm run dev
 - `GET /api/lojinha/admin/orders` - Gerenciar pedidos
 - `GET /api/lojinha/admin/entry-history` - Histórico de entradas
 - `POST /api/lojinha/admin/pix-key` - Configurar chave PIX
+
+Rotas administrativas adicionais (além das listadas acima):
+- `GET /api/lojinha/admin/pix-key` - Recuperar chave PIX configurada
+- `DELETE /api/lojinha/admin/pix-key` - Remover chave PIX
+- `DELETE /api/lojinha/admin/product` - Remover produto (aceita id)
 
 ### Permissões
 
@@ -150,6 +162,8 @@ O sistema usa permissões granulares:
 - **punctuations**: Pontuação dos usuários
 - **comments**: Comentários dos produtos
 - **pix_keys**: Chaves PIX para pagamento
+- **entry_histories**: Registros de entrada/saída de estoque por produto 
+- **pix_payments**: Dados do pagamento PIX associados a um pedido
 
 ### Tipos Enums
 
@@ -160,11 +174,11 @@ O sistema usa permissões granulares:
 ## 🔄 Fluxo de Pagamento
 
 1. **Adicionar produtos ao carrinho**
-2. **Finalizar pedido** → Gera QR Code PIX
+2. **Finalizar pedido** → Gera QR Code PIX e e itens são decrementados do estoque
 3. **Usuário paga via PIX**
-4. **Webhook confirma pagamento**
+4. **Webhook ou endpoint de registro confirma pagamento**
 5. **Pedido atualizado para "finishedPayment"**
-6. **Pontos creditados ao usuário**
+6. **Pontos creditados ao usuário (quando aplicável)**
 
 ## 📦 Scripts Disponíveis
 
@@ -173,10 +187,15 @@ O sistema usa permissões granulares:
 npm run dev
 ```
 
+Outros scripts úteis (ver `package.json`):
+
+- `npm run build` - Compila TypeScript
+- `npm start` - Inicia o build compilado
+
+Ver também o script auxiliar `update-sub.sh` que é usado para deploy/atualização em servidores de staging/produção simples.
+
 ## 👥 Equipe
 
-Desenvolvido pela equipe do **SAECOMP - Secretaria Acadêmica de Engenharia de Computação** da EESC-USP.
-
+Desenvolvido pela equipe do **SAECOMP - Secretaria Acadêmica de Engenharia de Computação**.
 ---
-
 Para mais informações ou suporte, entre em contato com a equipe do SAECOMP.
