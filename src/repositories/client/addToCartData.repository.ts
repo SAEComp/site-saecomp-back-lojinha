@@ -3,13 +3,6 @@ import { ICAddToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.sch
 import { ICAddToCartOutSchema } from "../../schemas/lojinha/output/addToCartOut.schema";
 import { ApiError } from "../../errors/ApiError";
 
-const dbQueryVerifyProduct = `
-    SELECT 1 FROM products
-    WHERE id = $1 
-        AND soft_delete = false
-        AND quantity >= $2
-`;
-
 const dbQuerySearchCart = `
     SELECT id FROM buy_orders
     WHERE buy_orders.user_id = $1
@@ -20,6 +13,15 @@ const dbQueryCreateCart = `
     INSERT INTO buy_orders (user_id, date, status)
     VALUES ($1, CURRENT_TIMESTAMP, 'cart')
     RETURNING id
+`;
+
+const dbQueryVerifyProduct = `
+    SELECT 1 FROM products p
+    LEFT JOIN items i ON i.product_id = p.id
+    LEFT JOIN buy_orders bo ON i.buy_order_id = $1 
+    WHERE p.id = $2 
+        AND p.soft_delete = false
+        AND p.quantity >= COALESCE(i.quantity,0) + $3 
 `;
 
 const dbQuerySearchItem = `
@@ -38,7 +40,7 @@ const dbQueryCreateItem = `
 const dbQueryUpdateItems = `
     UPDATE items i
     SET 
-        quantity = $1,
+        quantity = quantity + $1,
         value = (SELECT value FROM products WHERE products.id = $3) 
     FROM buy_orders bo
     WHERE bo.user_id = $2
@@ -47,10 +49,13 @@ const dbQueryUpdateItems = `
         AND i.product_id = $3
 `;
 
-export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): Promise<ICAddToCartOutSchema|null> => {
+export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): Promise<ICAddToCartOutSchema> => {
     
+    // Extração do item
+    const { productId, quantity } = item;
+
     // Valor retornado pela função 
-    var returned: ICAddToCartOutSchema|null = null;
+    let returned: ICAddToCartOutSchema;
 
     // Obtenção de conexão exclusiva com BD
     const client  = await pool.connect();
@@ -64,59 +69,50 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
         // Checagem de existência do carrinho, e, caso não exista, é criado
         let cartId = (await client.query(dbQuerySearchCart, [userId])).rows[0]?.id;
         if(cartId === undefined){
+            // Criação do carrinho e verificação de sucesso
             cartId = (await client.query(dbQueryCreateCart, [userId])).rows[0]?.id;
+            if(cartId === undefined){
+                await client.query('ROLLBACK');
+                throw new ApiError(404, 'Não foi possível criar o carrinho de compras');
+            }
         }
-
-        // Se ainda assim o carrinho não existir, retorna null (erro inesperado)
-        if(cartId === undefined){
-            await client.query('ROLLBACK');
-            throw new ApiError(500, 'Não foi possível criar o carrinho de compras');
-        }
-
-        // Variáveis de checagem de insuficiência de estoque
-        let insufficientStock: boolean = true;
         
-        // Checagem de existência do produto e se está disponível em quantidade suficiente 
-        const checkProduct = (await client.query(dbQueryVerifyProduct, [item.productId, item.quantity])).rowCount;
-
-        // Se disponível, prossegue com atualização do carrinho, senão retorna 0 (produto indisponível ou quantidade insuficiente)
-        if(checkProduct){
-
-            // Inicialmente, assume que não há falta de estoque
-            insufficientStock = false;
-
-            /* 
-                Verificação da existência do item que conecta carrinho ao produto, se existir é atualizado
-                e, caso não exista, é criado
-            */
-            let itemId = (await client.query(dbQuerySearchItem, [cartId, item.productId])).rows[0]?.id;
-            if(itemId === undefined){
-                
-                itemId = (await client.query(dbQueryCreateItem, [item.productId, cartId, item.quantity])).rows[0]?.id;
-                
-                // Se o item não foi criado, retorna null (erro inesperado)
-                if(itemId === undefined){
-                    await client.query('ROLLBACK');
-                    throw new ApiError(500, 'Não foi possível adicionar o item ao carrinho');
-                }
-            }
-            else{
-                
-                const qntItensUpdated = (await client.query(dbQueryUpdateItems, [item.quantity, userId, item.productId])).rowCount;
-                
-                // Se o item não foi atualizado, retorna null (erro inesperado)
-                if(qntItensUpdated === 0){
-                    await client.query('ROLLBACK');
-                    throw new ApiError(500, 'Não foi possível atualizar o item no carrinho');
-                }
-            }
-
+        // Verificação se o produto existe e se há quantidade suficiente
+        const checkProduct = (await client.query(dbQueryVerifyProduct, [cartId, productId, quantity])).rowCount;
+        if(!checkProduct){
+            await client.query('ROLLBACK');
+            throw new ApiError(404, 'Produto não encontrado ou quantidade solicitada maior que a disponível em estoque');
         }
 
-        // Se tudo ocorreu bem, retorna o esquema de saída
+        /* 
+            Verificação da existência do item que conecta carrinho ao produto, se existir é atualizado
+            e, caso não exista, é criado
+        */
+        let itemId = (await client.query(dbQuerySearchItem, [cartId, productId])).rows[0]?.id;
+        if(itemId === undefined){
+            // Cria o item que conecta o produto ao carrinho
+            itemId = (await client.query(dbQueryCreateItem, [productId, cartId, quantity])).rows[0]?.id;
+            
+            // Se o item não foi criado, retorna null (erro inesperado)
+            if(itemId === undefined){
+                await client.query('ROLLBACK');
+                throw new ApiError(404, 'Não foi possível adicionar o item ao carrinho');
+            }
+        }
+        else{
+            // Atualiza a quantidade do item no carrinho
+            const qntItemsUpdated = (await client.query(dbQueryUpdateItems, [quantity, userId, productId])).rowCount;
+            
+            // Se o item não foi atualizado, retorna null (erro inesperado)
+            if(!qntItemsUpdated){
+                await client.query('ROLLBACK');
+                throw new ApiError(404, 'Não foi possível atualizar o item no carrinho');
+            }
+        }
+
+        // Monta o esquema de retorno
         returned = {
             buyOrderId: cartId,
-            insufficientStock: insufficientStock
         };
         
         // Finaliza transação com BD
@@ -134,6 +130,6 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
         client.release();
     }
 
-    return returned;
+    return returned as ICAddToCartOutSchema;
 
 }
