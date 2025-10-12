@@ -43,7 +43,7 @@ const getOrderPix = async(buyOrderId: number, buyOrderValue: number, userEmail: 
     };
 
     // Criação do registro do pix no banco de dados
-    const rowCount = (await pool.query(dbQueryInserPixPayment, [buyOrderId, payment.paymentId, payment.qrCodeBase64, payment.pixCopiaECola])).rowCount;
+    const rowCount = (await pool.query(dbQueryInserPixPayment, [buyOrderId, String(payment.paymentId), payment.qrCodeBase64, payment.pixCopiaECola])).rowCount;
     if(rowCount === 0){
         throw new Error('Erro ao registrar pagamento pix no banco de dados');
     }
