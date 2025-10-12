@@ -57,7 +57,7 @@ export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): P
         }
 
         // 1 real <=> 100 pontos
-        const score : number = totalValue * 100;
+        const score : number = Number((totalValue * 100).toFixed(0));
 
         // Atualização da pontuação do usuário
         const qntPunctuationUpdate = (await client.query(dbQueryUpdateUserScore, [score, userId])).rowCount;
