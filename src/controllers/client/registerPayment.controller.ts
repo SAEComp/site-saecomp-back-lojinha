@@ -11,9 +11,6 @@ const registerPayment = async(req: Request, res: Response): Promise<void> =>{
 
     // Chamada da função de repositório
     const result = await registerPaymentData(body);
-    
-    // Checagem do resultado da função de repositório, para existência de pedido
-    if(!result) throw new ApiError(404, 'Pedido inexistente');
 
     // Se existir, valida saída
     const safedResult = registerPaymentOutSchema.parse(result);

@@ -1,7 +1,9 @@
-import {Request, Response} from "express";
+import { Response} from "express";
 import { ApiError } from "../errors/ApiError";
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import getAccountToken from "./getAccountToken";
+import { registerPaymentData } from "../repositories/client/registerPaymentData.repository";
+import { cancelPaymentData } from "../repositories/client/cancelPaymentData.repository";
 
 
 // Mapeamento hash com ID de Pagamento (chave) associado ao Objeto de Resposta do usuário (Res) envio de evento SSE.
@@ -28,7 +30,11 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
         // Extração do id do pagamento
         const paymentId = paymentStatus?.id;
         if(!paymentId) throw new ApiError(404, 'Erro na recepção do id de pagamento');
-        
+
+        // Extração do id do pedido de compra
+        const buyOrderId = Number(paymentStatus?.external_reference);
+        if(!buyOrderId) throw new ApiError(404, 'Erro na recepção do id do pedido de compra');
+
         // Verifica se o pagamento foi aprovado
         if(paymentStatus.status == 'approved'){
             // Verifica se existe algum cliente aguardando por verificação de pagamento
@@ -36,7 +42,7 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
             if(clientRes){
                 // Se existir, envia o evento de pagamento aprovado
                 clientRes.write('event: payment_approved\n');
-                clientRes.write(`data: pagamento de pix de id ${paymentId} foi aprovado\n\n`);
+                clientRes.write(`data: pagamento do pix de id ${paymentId} foi aprovado\n\n`);
 
                 // Encerra a conexão SSE
                 clientRes.end();
@@ -44,6 +50,30 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
                 // Remove o cliente da lista de espera
                 waitingClients.delete(paymentId);
             }
+
+            // Registra pagamento de pedido
+            await registerPaymentData({buyOrderId: buyOrderId});
         }
+
+        // Verifica se o pagamento foi aprovado
+        if(paymentStatus.status == 'cancelled'){
+            // Verifica se existe algum cliente aguardando por verificação de pagamento
+            const clientRes = waitingClients.get(paymentId);
+            if(clientRes){
+                // Se existir, envia o evento de pagamento aprovado
+                clientRes.write('event: payment_canceled\n');
+                clientRes.write(`data: pagamento do pix de id ${paymentId} foi cancelado\n\n`);
+
+                // Encerra a conexão SSE
+                clientRes.end();
+
+                // Remove o cliente da lista de espera
+                waitingClients.delete(paymentId); 
+            }
+
+            // Cancela pagamento de pedido
+            await cancelPaymentData({buyOrderId: buyOrderId});
+        }
+
     }
 };

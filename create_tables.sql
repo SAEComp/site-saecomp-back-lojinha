@@ -21,9 +21,9 @@ END$$;
 CREATE TABLE IF NOT EXISTS products(
 	id				BIGSERIAL 		PRIMARY KEY,
 	name 			TEXT 			NOT NULL,
-	value			REAL			NOT NULL CHECK(value >= 0),
+	value			REAL			CHECK(value >= 0) NOT NULL,
 	description		TEXT			NOT NULL,
-	quantity		INTEGER			CHECK(quantity >= 0),
+	quantity		INTEGER			CHECK(quantity >= 0) NOT NULL,
 	bar_code		CHAR(13)		UNIQUE ,
 	soft_delete		BOOLEAN			DEFAULT FALSE,
 	img_url			TEXT			DEFAULT NULL,			
@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS items(
 	id				BIGSERIAL				PRIMARY KEY,
 	product_id		INT						NOT NULL REFERENCES products(id) ON DELETE CASCADE,
 	buy_order_id	INT 					NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
-	quantity		INTEGER					CHECK(quantity >= 0),
-	value			REAL					CHECK(value >= 0),
+	quantity		INTEGER					CHECK(quantity >= 0) NOT NULL,
+	value			REAL					CHECK(value >= 0) NOT NULL,
 	CONSTRAINT 		unique_cart_product 	UNIQUE (buy_order_id, product_id)
 );
 
@@ -72,4 +72,11 @@ CREATE TABLE IF NOT EXISTS pix_keys(
 	city			TEXT			NOT NULL,
 	pix_key         TEXT			DEFAULT NULL,		
 	token			TEXT			NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pix_payments(
+	buy_order_id	INT 			PRIMARY KEY NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
+	payment_id		TEXT 			NOT NULL,
+	qr_code			TEXT			NOT NULL,
+	pix_copia_cola	TEXT			NOT NULL
 );

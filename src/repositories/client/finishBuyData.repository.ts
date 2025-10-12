@@ -93,8 +93,11 @@ export const finishBuyData = async(buyKey: ICFinishBuyInSchema): Promise<number>
 
     }
 
+    // Arredonda o valor para 2 casas decimais
+    const safedNumber = Number(buyOrderValue.toFixed(2));
+
     // Retorna valor total do pedido
-    return buyOrderValue;
+    return safedNumber as number ;
 };
 
 

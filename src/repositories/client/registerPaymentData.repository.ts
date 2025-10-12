@@ -30,10 +30,10 @@ const dbQueryCreateUserPunctuation = `
     VALUES ($1, $2)
 `;
 
-export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema|null> => {
+export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): Promise<ICRegisterPaymentOutSchema> => {
     
     // Variável de retorno
-    let returned : ICRegisterPaymentOutSchema|null = null;
+    let returned : ICRegisterPaymentOutSchema;
 
     // Conexão com o banco
     const client = await pool.connect();
@@ -57,7 +57,7 @@ export const registerPaymentData = async(orderKey: ICRegisterPaymentInSchema): P
         }
 
         // 1 real <=> 100 pontos
-        const score : number = totalValue * 100;
+        const score : number = Number((totalValue * 100).toFixed(0));
 
         // Atualização da pontuação do usuário
         const qntPunctuationUpdate = (await client.query(dbQueryUpdateUserScore, [score, userId])).rowCount;
