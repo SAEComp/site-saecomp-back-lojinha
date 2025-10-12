@@ -35,7 +35,7 @@ export const cancelPaymentData = async(buyOrderKey: ICCancelPaymentInSchema): Pr
     // Início de transação para o cancelamento do pedido
     const client = await pool.connect();
     try{
-        client.query('BEGIN');
+        await client.query('BEGIN');
 
         // Reverte quantidades nos produtos (somente se o pedido estiver em pendingPayment)
         const qntUpdatedProducts = (await client.query(dbQueryRevertOrder, [buyOrderId])).rowCount;
@@ -44,7 +44,7 @@ export const cancelPaymentData = async(buyOrderKey: ICCancelPaymentInSchema): Pr
             throw new ApiError(404, "Pedido não encontrado ou não está em 'pendingPayment'");
         }
 
-        // Cancela pedido, atualizandio seu status para 'canceled' (somente se o pedido estiver em pendingPayment)
+        // Cancela pedido, atualizando seu status para 'canceled' (somente se o pedido estiver em pendingPayment)
         const qntCanceledOrders = (await client.query(dbQueryCancelOrder, [buyOrderId])).rowCount;
         if (qntCanceledOrders === 0) {
             await client.query('ROLLBACK');
@@ -52,11 +52,11 @@ export const cancelPaymentData = async(buyOrderKey: ICCancelPaymentInSchema): Pr
         }
 
         // Confirma a transação
-        client.query('COMMIT');
+        await client.query('COMMIT');
     }
     catch(error){
         // Em caso de erro, desfaz a transação e relança o erro
-        client.query('ROLLBACK');
+        await client.query('ROLLBACK');
         throw error;
     }
     finally{
