@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS items(
 	id				BIGSERIAL				PRIMARY KEY,
 	product_id		BIGINT					NOT NULL REFERENCES products(id) ON DELETE CASCADE,
 	buy_order_id	BIGINT 					NOT NULL REFERENCES buy_orders(id) ON DELETE CASCADE,
-	quantity		INTEGER					CHECK(quantity >= 0) NOT NULL,
+	quantity		INTEGER					CHECK(quantity >= 1) NOT NULL,
 	value			REAL					CHECK(value >= 0) NOT NULL,
 	CONSTRAINT 		unique_cart_product 	UNIQUE (buy_order_id, product_id)
 );
