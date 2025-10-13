@@ -21,11 +21,14 @@ const dbQueryVerifyProduct = `
     LEFT JOIN buy_orders bo ON i.buy_order_id = $1 
     WHERE p.id = $2 
         AND p.soft_delete = false
-        AND p.quantity >= COALESCE(i.quantity,0) + $3 
+        AND p.quantity >= COALESCE(i.quantity,0) + $3
 `;
 
 const dbQuerySearchItem = `
-    SELECT id FROM items
+    SELECT
+        id AS "id",
+        quantity AS "quantity"
+    FROM items
     WHERE buy_order_id = $1
         AND product_id = $2
 `;
@@ -88,10 +91,17 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
             Verificação da existência do item que conecta carrinho ao produto, se existir é atualizado
             e, caso não exista, é criado
         */
-        let itemId = (await client.query(dbQuerySearchItem, [cartId, productId])).rows[0]?.id;
-        if(itemId === undefined){
+        let item = (await client.query(dbQuerySearchItem, [cartId, productId])).rows[0];
+        if(item === undefined){
+
+            // Verificação se a quantidade é válida, não é permitido adicionar quantidade menor ou igual a zero
+            if(quantity < 1){
+                await client.query('ROLLBACK');
+                throw new ApiError(404, 'Quantidade inválida para adicionar o item ao carrinho');
+            }
+
             // Cria o item que conecta o produto ao carrinho
-            itemId = (await client.query(dbQueryCreateItem, [productId, cartId, quantity])).rows[0]?.id;
+            const itemId = (await client.query(dbQueryCreateItem, [productId, cartId, quantity])).rows[0]?.id;
             
             // Se o item não foi criado, retorna null (erro inesperado)
             if(itemId === undefined){
@@ -100,6 +110,13 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
             }
         }
         else{
+
+            // Verificação se a quantidade é válida, não é permitido adicionar quantidade menor ou igual a zero
+            if(item.quantity + quantity < 1){
+                await client.query('ROLLBACK');
+                throw new ApiError(404, 'Quantidade inválida para adicionar o item ao carrinho');
+            }
+
             // Atualiza a quantidade do item no carrinho
             const qntItemsUpdated = (await client.query(dbQueryUpdateItems, [quantity, userId, productId])).rowCount;
             
