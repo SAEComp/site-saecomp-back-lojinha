@@ -10,6 +10,7 @@ import authenticate from "./middlewares/authenticate";
 import { errorHandler } from "./middlewares/errorHandler";
 import swaggerUi from 'swagger-ui-express';
 import corsMiddleware from "./middlewares/cors";
+import healthRouter from "./routers/health.route";
 
 
 // Instanciação do express
@@ -24,6 +25,8 @@ app.use(corsMiddleware);
 app.use(express.urlencoded({extended: true}));
 
 // ================= routers ================= //
+app.use('/api/lojinha/health', healthRouter);
+
 app.use("/api/lojinha", userRounter);
 app.use("/api/lojinha/admin", adminRounter);
 
