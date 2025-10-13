@@ -147,6 +147,6 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
         client.release();
     }
 
-    return returned as ICAddToCartOutSchema;
+    return returned;
 
 }
