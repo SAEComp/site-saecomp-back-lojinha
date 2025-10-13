@@ -1,7 +1,6 @@
 import { OpenApiGeneratorV31 } from '@asteasolutions/zod-to-openapi';
 import { registry } from './registry';
 
-import { registerAdminAnswerRoutesDocs } from './openapi/adminAnswer.openapi';
 import { registerAdminLojinhaRoutesDocs } from './openapi/adminLojinha.openapi';
 import { registerClientLojinhaRoutesDocs } from './openapi/clientLojinha.openapi';
 
@@ -12,7 +11,6 @@ registry.registerComponent('securitySchemes', 'bearerAuth', {
 });
 
 
-registerAdminAnswerRoutesDocs();
 registerAdminLojinhaRoutesDocs();
 registerClientLojinhaRoutesDocs();
 
