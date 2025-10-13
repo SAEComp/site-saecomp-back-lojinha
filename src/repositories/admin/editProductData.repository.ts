@@ -77,6 +77,7 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
         UPDATE products
         SET ${updateIndex.join(', ')}
         WHERE id = $${idParamIndex}
+        AND soft_delete = false
     `;
     
     // Conexão com o banco de dados

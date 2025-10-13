@@ -96,6 +96,15 @@ npm run dev
 
 ## 📚 Documentação da API
 
+### Documentação interativa (Swagger)
+
+Uma documentação interativa (Swagger UI) está disponível enquanto o servidor estiver rodando em:
+
+- http://localhost:3000/api/lojinha/docs
+
+Ela permite testar endpoints, ver schemas de request/response e executar chamadas diretamente do navegador.
+
+
 ### Endpoints Principais
 
 #### 🛍️ Produtos

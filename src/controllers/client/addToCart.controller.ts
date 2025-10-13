@@ -9,13 +9,11 @@ const addToCart = async(req: Request, res: Response): Promise<void> =>{
     const body =  addToCartInSchema.parse(req.body);
     
     // Verificação se o usuário está autenticado
-    if(req.userId === undefined) throw new ApiError(404, "Usuário não encontrado");
+    const userId = req.userId
+    if(!userId) throw new ApiError(404, "Usuário não encontrado");
     
     // Adiciona produto ao carrinho
-    const cartId  = await addtoCartData(req.userId, body);
-
-    // Verificação se o produto foi adicionado ao carrinho
-    if(!cartId) throw new ApiError(500, 'Erro ao adicionar produto no carrinho');
+    const cartId  = await addtoCartData(userId, body);
     
     // Retorno de sucesso
     res.status(200).json(cartId);

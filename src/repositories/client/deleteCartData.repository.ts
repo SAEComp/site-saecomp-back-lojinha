@@ -9,11 +9,12 @@ const dbQueryDeleteCart = `
 `;
 
 
-export const deleteCartData = async (userId: number): Promise<number|null> => {
+export const deleteCartData = async (userId: number): Promise<void> => {
 
     // Deleta o carrinho através do status('cart') e id do usuário
     const qntDeleted = (await pool.query(dbQueryDeleteCart, [userId])).rowCount;
 
-    // Retorna a quantidade de carrinhos deletados (0 ou 1)
-    return qntDeleted;
+    // Verificação se carrinho foi encontrado
+    if(!qntDeleted) throw new ApiError(404, 'Carrinho inexistente'); 
+
 };
