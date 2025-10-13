@@ -25,7 +25,7 @@ export function registerAdminLojinhaRoutesDocs() {
             body: addPixKeyInSchema.openapi("addPixKeyInSchema"),
         },
         responses: {
-            201: {
+            200: {
                 description: "Chave PIX adicionada com sucesso"
             },
         },
@@ -52,7 +52,7 @@ export function registerAdminLojinhaRoutesDocs() {
         tags: ["Admin Lojinha"],
         summary: "Remove a chave PIX configurada",
         responses: {
-            204: {
+            200: {
                 description: "Chave PIX removida com sucesso"
             },
         },
@@ -68,7 +68,7 @@ export function registerAdminLojinhaRoutesDocs() {
             body: addProductInSchema.openapi("addProductInSchema"),
         },
         responses: {
-            201: {
+            200: {
                 description: "Produto criado com sucesso",
                 schema: addProductOutSchema.openapi("addProductOutSchema"),
             },
@@ -98,10 +98,10 @@ export function registerAdminLojinhaRoutesDocs() {
         tags: ["Admin Lojinha"],
         summary: "Remove um produto",
         request: {
-            body: removeProductInSchema.openapi("removeProductInSchema"),
+            query: removeProductInSchema.openapi("removeProductInSchema"),
         },
         responses: {
-            204: {
+            200: {
                 description: "Produto removido com sucesso"
             },
         },
@@ -165,17 +165,11 @@ export function registerAdminLojinhaRoutesDocs() {
         tags: ["Admin Lojinha"],
         summary: "Upload de imagem para produto",
         request: {
-            query: addProductImageInSchema.openapi("addProductImageInSchema"),
-            body: z.object({
-                productImage: z.string().describe("Arquivo de imagem do produto (multipart/form-data)"),
-            }).openapi("AddProductImageBodySchema"),
+            body: addProductImageInSchema.openapi("addProductImageInSchema"),
         },
         responses: {
             200: {
                 description: "Imagem do produto enviada com sucesso",
-                schema: z.object({
-                    imageUrl: z.string().describe("URL da imagem enviada"),
-                }).openapi("AddProductImageResponseSchema"),
             },
         },
     });
