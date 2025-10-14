@@ -164,7 +164,7 @@ export function registerClientLojinhaRoutesDocs() {
                         'text/event-stream': {
                             schema: {
                                 type: 'string',
-                                example: "event: payment\ndata: {\"paid\":true,\"status\":\"confirmed\",\"paymentid\":<numberId>}\n\n"
+                                example: "event: payment\ndata: {\"paid\":true,\"status\":\"confirmed\",\"paymentId\":<numberId>}\n\n"
                             }
                         }
                     }
