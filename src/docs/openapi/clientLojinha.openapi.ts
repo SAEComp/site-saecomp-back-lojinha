@@ -94,8 +94,8 @@ export function registerClientLojinhaRoutesDocs() {
         tags: ["Client Lojinha"],
         summary: "Limpa o carrinho do usuário",
         responses: {
-            204: {
-                description: "Carrinho limpo com sucesso"
+            200: {
+                description: "Carrinho deletado com sucesso"
             },
         },
     });
@@ -107,10 +107,10 @@ export function registerClientLojinhaRoutesDocs() {
         tags: ["Client Lojinha"],
         summary: "Remove item específico do carrinho",
         request: {
-            body: deleteItemInSchema.openapi("deleteItemInSchema"),
+            query: deleteItemInSchema.openapi("deleteItemInSchema"),
         },
         responses: {
-            204: {
+            200: {
                 description: "Item removido do carrinho com sucesso"
             },
         },
@@ -126,7 +126,7 @@ export function registerClientLojinhaRoutesDocs() {
             body: addCommentInSchema.openapi("addCommentInSchema"),
         },
         responses: {
-            201: {
+            200: {
                 description: "Comentário adicionado com sucesso",
                 schema: addCommentOutSchema.openapi("addCommentOutSchema"),
             },
