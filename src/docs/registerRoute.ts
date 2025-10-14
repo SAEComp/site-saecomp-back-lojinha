@@ -15,7 +15,8 @@ interface RegisterConfig extends Omit<RouteConfig, 'responses' | 'request'> {
     responses: {
         [statusCode: string]: {
             description: string;
-            schema?: ZodType;
+            schema?: ZodType ;
+            event?: | { content: Record<string, any> };
         };
     };
 }
@@ -94,14 +95,56 @@ export function registerRoute(config: RegisterConfig) {
     const responses: RouteConfig['responses'] = Object.fromEntries(
         Object.entries(config.responses).map(([status, r]) => [
             +status,
-            !r.schema
-                ? { description: r.description }
-                : {
-                    description: r.description,
-                    content: {
-                        'application/json': { schema: registerIfNeeded(r.schema) },
-                    },
-                },
+            // If the response declares an `event` field, prefer that content (used for SSE).
+            // Otherwise fall back to `schema` which is rendered as application/json.
+            (() => {
+                // Helper to process content maps and register any Zod schemas inside
+                const processContent = (content?: Record<string, any>) => {
+                    if (!content || typeof content !== 'object') return undefined;
+                    const cloned: Record<string, any> = JSON.parse(JSON.stringify(content));
+
+                    for (const [mediaType, mediaObj] of Object.entries(content)) {
+                        const target = (cloned as any)[mediaType] = { ...(mediaObj as any) };
+
+                        const schema = (mediaObj as any).schema;
+                        if (schema) {
+                            if ((schema as any)?._def) {
+                                target.schema = registerIfNeeded(schema as ZodType);
+                            } else if (typeof schema === 'object' && schema.properties) {
+                                const props = { ...schema.properties };
+                                for (const [k, v] of Object.entries(props)) {
+                                    if ((v as any)?._def) {
+                                        props[k] = registerIfNeeded(v as ZodType);
+                                    }
+                                }
+                                target.schema = { ...schema, properties: props };
+                            }
+                        }
+                    }
+
+                    return cloned;
+                };
+
+                // If event content is provided, use it (commonly 'text/event-stream')
+                if ((r as any).event && (r as any).event.content) {
+                    return {
+                        description: r.description,
+                        content: processContent((r as any).event.content),
+                    };
+                }
+
+                // Otherwise, if a Zod schema is provided, register it as application/json
+                if (r.schema) {
+                    return {
+                        description: r.description,
+                        content: {
+                            'application/json': { schema: registerIfNeeded(r.schema) },
+                        },
+                    };
+                }
+
+                return { description: r.description };
+            })(),
         ]),
     );
 

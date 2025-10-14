@@ -116,19 +116,16 @@ export function registerClientLojinhaRoutesDocs() {
         },
     });
 
-    // POST /api/lojinha/comment
+    // GET /api/lojinha/pending-payment
     registerRoute({
-        method: "post",
-        path: "/comment",
+        method: "get",
+        path: "/pending-payment",
         tags: ["Client Lojinha"],
-        summary: "Adiciona comentário/avaliação",
-        request: {
-            body: addCommentInSchema.openapi("addCommentInSchema"),
-        },
+        summary: "Obtém pedidos pendentes de pagamento do usuário",
         responses: {
             200: {
-                description: "Comentário adicionado com sucesso",
-                schema: addCommentOutSchema.openapi("addCommentOutSchema"),
+                description: "Lista de pedidos pendentes de pagamento",
+                schema: getPendingPaymentOutSchema.openapi("getPendingPaymentOutSchema"),
             },
         },
     });
@@ -155,17 +152,23 @@ export function registerClientLojinhaRoutesDocs() {
         method: "get",
         path: "/listen-payment",
         tags: ["Client Lojinha"],
-        summary: "Verifica status do pagamento",
+        summary: "Verifica status do pagamento, usando server-side events",
         request: {
             query: listenPaymentInSchema.openapi("listenPaymentInSchema"),
         },
         responses: {
             200: {
-                description: "Status do pagamento",
-                schema: z.object({
-                    paid: z.boolean().describe("Se o pagamento foi confirmado"),
-                    status: z.string().describe("Status atual do pagamento"),
-                }).openapi("ListenPaymentResponseSchema"),
+                description: "Stream SSE com eventos de pagamento (text/event-stream)",
+                event: {
+                    content: {
+                        'text/event-stream': {
+                            schema: {
+                                type: 'string',
+                                example: "event: payment\ndata: {\"paid\":true,\"status\":\"confirmed\",\"paymentid\":<numberId>}\n\n"
+                            }
+                        }
+                    }
+                },
             },
         },
     });
@@ -175,7 +178,7 @@ export function registerClientLojinhaRoutesDocs() {
         method: "post",
         path: "/confirm-payment",
         tags: ["Client Lojinha"],
-        summary: "Webhook do Mercado Pago para confirmar pagamento",
+        summary: "Webhook do Mercado Pago para confirmar pagamento (não é necessário chamar diretamente)",
         request: {
             body: z.object({
                 action: z.string().describe("Ação do webhook"),
@@ -261,16 +264,19 @@ export function registerClientLojinhaRoutesDocs() {
         },
     });
 
-    // GET /api/lojinha/pending-payment
+    // POST /api/lojinha/comment
     registerRoute({
-        method: "get",
-        path: "/pending-payment",
+        method: "post",
+        path: "/comment",
         tags: ["Client Lojinha"],
-        summary: "Obtém pedidos pendentes de pagamento do usuário",
+        summary: "Adiciona comentário/avaliação",
+        request: {
+            body: addCommentInSchema.openapi("addCommentInSchema"),
+        },
         responses: {
             200: {
-                description: "Lista de pedidos pendentes de pagamento",
-                schema: getPendingPaymentOutSchema.openapi("getPendingPaymentOutSchema"),
+                description: "Comentário adicionado com sucesso",
+                schema: addCommentOutSchema.openapi("addCommentOutSchema"),
             },
         },
     });
