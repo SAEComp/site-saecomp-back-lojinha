@@ -41,8 +41,8 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
             const clientRes = waitingClients.get(paymentId);
             if(clientRes){
                 // Se existir, envia o evento de pagamento aprovado
-                clientRes.write('event: payment_approved\n');
-                clientRes.write(`data: pagamento do pix de id ${paymentId} foi aprovado\n\n`);
+                clientRes.write('event: payment\n');
+                clientRes.write(`data: ${JSON.stringify({paid: true, status: 'confirmed', paymentId: paymentId})}\n\n`);
 
                 // Encerra a conexão SSE
                 clientRes.end();
@@ -61,8 +61,8 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
             const clientRes = waitingClients.get(paymentId);
             if(clientRes){
                 // Se existir, envia o evento de pagamento aprovado
-                clientRes.write('event: payment_canceled\n');
-                clientRes.write(`data: pagamento do pix de id ${paymentId} foi cancelado\n\n`);
+                clientRes.write('event: payment\n');
+                clientRes.write(`data: ${JSON.stringify({paid: false, status: 'canceled', paymentId: paymentId})}\n\n`);
 
                 // Encerra a conexão SSE
                 clientRes.end();
