@@ -62,7 +62,7 @@ export const mercadoPagoWebhookEndpoint = async(topic: any, resourceId: any): Pr
             if(clientRes){
                 // Se existir, envia o evento de pagamento aprovado
                 clientRes.write('event: payment\n');
-                clientRes.write(`data: ${JSON.stringify({paid: true, status: 'canceled', paymentId: paymentId})}\n\n`);
+                clientRes.write(`data: ${JSON.stringify({paid: false, status: 'canceled', paymentId: paymentId})}\n\n`);
 
                 // Encerra a conexão SSE
                 clientRes.end();
