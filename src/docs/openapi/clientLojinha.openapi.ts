@@ -214,6 +214,22 @@ export function registerClientLojinhaRoutesDocs() {
         },
     });
 
+    // POST /api/lojinha/cancel-payment
+    registerRoute({
+        method: "post",
+        path: "/cancel-payment",
+        tags: ["Client Lojinha"],
+        summary: "Cancela um pagamento pendente",
+        request: {
+            body: cancelPaymentInSchema.openapi("cancelPaymentInSchema"),
+        },
+        responses: {
+            200: {
+                description: "Pagamento cancelado com sucesso"
+            },
+        },
+    });
+
     // GET /api/lojinha/punctuation
     registerRoute({
         method: "get",
@@ -259,19 +275,4 @@ export function registerClientLojinhaRoutesDocs() {
         },
     });
 
-    // POST /api/lojinha/cancel-payment
-    registerRoute({
-        method: "post",
-        path: "/cancel-payment",
-        tags: ["Client Lojinha"],
-        summary: "Cancela um pagamento pendente",
-        request: {
-            body: cancelPaymentInSchema.openapi("cancelPaymentInSchema"),
-        },
-        responses: {
-            200: {
-                description: "Pagamento cancelado com sucesso"
-            },
-        },
-    });
 }

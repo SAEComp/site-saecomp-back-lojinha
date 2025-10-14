@@ -165,7 +165,20 @@ export function registerAdminLojinhaRoutesDocs() {
         tags: ["Admin Lojinha"],
         summary: "Upload de imagem para produto",
         request: {
-            body: addProductImageInSchema.openapi("addProductImageInSchema"),
+            body: {
+                content: {
+                    'multipart/form-data': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                productId: { type: 'number' },
+                                productImage: { type: 'string', format: 'binary' },
+                            },
+                            required: ['productId', 'productImage'],
+                        },
+                    },
+                },
+            },
         },
         responses: {
             200: {

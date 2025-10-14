@@ -1,13 +1,15 @@
 // src/openapi/registerRoute.ts
 import { registry } from "./registry";
 import { ZodType } from "zod";
-import { RouteConfig } from "@asteasolutions/zod-to-openapi";
+import { RouteConfig, ZodRequestBody } from "@asteasolutions/zod-to-openapi";
 
 
 
 interface RegisterConfig extends Omit<RouteConfig, 'responses' | 'request'> {
     request?: Omit<NonNullable<RouteConfig['request']>, 'body'> & {
-        body?: ZodType;
+        // permit either a ZodType (for application/json) or an OpenAPI-style request body
+        // object that contains a `content` map (used for multipart/form-data).
+        body?: ZodType | { content: Record<string, any> };
     };
 
     responses: {
@@ -37,16 +39,57 @@ export function registerIfNeeded(schema: ZodType): { $ref: string } {
 
 export function registerRoute(config: RegisterConfig) {
 
+    function buildRequestBody(body?: ZodType | { content: Record<string, any> }): ZodRequestBody | undefined {
+        if (!body) return undefined;
+
+        // if it's a Zod schema, register and return application/json content
+        if ((body as any)?._def) {
+            return {
+                content: {
+                    'application/json': {
+                        schema: registerIfNeeded(body as ZodType),
+                    },
+                },
+            };
+        }
+
+        // if it's an OpenAPI-style body with content (e.g. multipart/form-data),
+        // traverse its content and register any Zod schemas found inside.
+        if (typeof body === 'object' && 'content' in body && body.content && typeof body.content === 'object') {
+            // shallow clone to avoid mutating caller's object
+            const content = JSON.parse(JSON.stringify(body.content));
+
+            for (const [mediaType, mediaObj] of Object.entries(body.content)) {
+                const target = (content as any)[mediaType] = { ...(mediaObj as any) };
+
+                // If schema is a ZodType, register it
+                const schema = (mediaObj as any).schema;
+                if (schema) {
+                    if ((schema as any)?._def) {
+                        target.schema = registerIfNeeded(schema as ZodType);
+                    } else if (typeof schema === 'object' && schema.properties) {
+                        // schema is a plain object; traverse properties and register any Zod schemas
+                        const props = { ...schema.properties };
+                        for (const [k, v] of Object.entries(props)) {
+                            if ((v as any)?._def) {
+                                props[k] = registerIfNeeded(v as ZodType);
+                            }
+                        }
+                        target.schema = { ...schema, properties: props };
+                    }
+                }
+            }
+
+            return { content };
+        }
+
+        return undefined;
+    }
+
     const request: RouteConfig['request'] = {
         ...config.request,
-        body: config.request?.body ? {
-            content: {
-                'application/json': {
-                    schema: registerIfNeeded(config.request.body),
-                },
-            }
-        } : undefined,
-    }
+        body: buildRequestBody(config.request?.body),
+    };
 
     const responses: RouteConfig['responses'] = Object.fromEntries(
         Object.entries(config.responses).map(([status, r]) => [
