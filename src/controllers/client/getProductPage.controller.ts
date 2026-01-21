@@ -12,9 +12,6 @@ const getProductPage = async(req: Request, res: Response): Promise<void> => {
     
     // Obtém página de produtos (com ou sem especificação de categoria)
     const page: ICGetProductPageOutSchema = await getProductPageData(query); 
-    
-    // Verifica se há produtos a serem retornados
-    if(!page || page.product.length === 0) throw new ApiError(404, 'Nenhum produto encontrado');
 
     // Valida os produtos obtidos com o schema de saída
     const safedPage = getProductPageOutSchema.parse(page); 
