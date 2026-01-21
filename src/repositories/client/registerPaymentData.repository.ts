@@ -21,7 +21,7 @@ const dbQueryGetTotalValueOfOrder = `
 
 const dbQueryUpdateUserScore = `
     UPDATE punctuations
-    SET score = $1
+    SET score = score + $1
     WHERE user_id = $2
 `;
 
