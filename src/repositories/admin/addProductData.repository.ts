@@ -10,10 +10,10 @@ const dbQueryAddEntryHistory = `
     RETURNING id
 `;
 
-export const addProductData = async(product: ICAddProductInSchema): Promise<ICAddProductOutSchema|null> => {
+export const addProductData = async(product: ICAddProductInSchema): Promise<ICAddProductOutSchema> => {
     
     // Variável de retorno
-    let returned: ICAddProductOutSchema|null = null;
+    let returned: ICAddProductOutSchema;
 
     // Partes dinâmicas da query
     let columns: string[] = [];
@@ -27,15 +27,20 @@ export const addProductData = async(product: ICAddProductInSchema): Promise<ICAd
 
 
     // Verifica se os parâmetros opcionais foram enviados, adicionando-os na query
-    if(product.imgUrl){
+    if(product.imgUrl !== undefined){
         columns.push('img_url');
         indexs.push('$' + (values.length + 1));
         values.push(product.imgUrl);
     }
-    if(product.barCode){
+    if(product.barCode !== undefined){
         columns.push('bar_code');
         indexs.push('$' + (values.length + 1));
         values.push(product.barCode);
+    }
+    if(product.isActive !== undefined){
+        columns.push('is_active');
+        indexs.push('$' + (values.length + 1));
+        values.push(product.isActive);
     }
 
     // Query dinâmica para adicionar produto 

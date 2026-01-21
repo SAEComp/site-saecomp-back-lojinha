@@ -63,6 +63,10 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
         updateIndex.push(' category = $' + (values.length + 1));
         values.push(product.category);
     }
+    if(product.isActive !== undefined){
+        updateIndex.push(' is_active = $' + (values.length + 1));
+        values.push(product.isActive);
+    }
 
     // Se não houver campos para atualizar, retorna null
     if(updateIndex.length == 0) return null;
