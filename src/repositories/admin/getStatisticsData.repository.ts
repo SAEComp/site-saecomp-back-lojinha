@@ -14,7 +14,7 @@ const dbQueryGetOrderStats = `
 const dbQueryGetProductsStats = `
     SELECT 
         COUNT(id) FILTER (WHERE soft_delete = false) AS "stockProducts",
-        SUM(quantity) FILTER (WHERE soft_delete = false) AS "stockItems" 
+        SUM(quantity * value) FILTER (WHERE soft_delete = false) AS "maxPotentialRevenue" 
     FROM products
 `;
 
