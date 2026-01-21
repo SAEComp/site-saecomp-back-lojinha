@@ -14,9 +14,6 @@ const getCart = async(req: Request, res: Response): Promise<void> => {
     // Busca carrinho pelo status('cart') e id do usuário
     const cart = await getCartData(userId);
     
-    // Verificação se carrinho foi encontrado
-    if(!cart || cart.items.length === 0) throw new ApiError(404, 'Carrinho vazio');
-    
     // Validação do pedido a ser retornado
     const safedCart = getCartOutSchema.parse(cart); 
     
