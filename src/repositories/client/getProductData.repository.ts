@@ -13,7 +13,7 @@ const dbQueryGetProductById = `
     img_url AS "imgUrl",
     category
     FROM products 
-    WHERE id = $1 AND soft_Delete = false
+    WHERE id = $1 AND soft_delete = false
 `;
 
 const dbQueryGetProductByBarCode = `

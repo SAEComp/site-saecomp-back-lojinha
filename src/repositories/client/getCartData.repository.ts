@@ -46,10 +46,15 @@ const dbQueryGetItems = `
     WHERE i.buy_order_id = $1
 `;
 
-export const getCartData = async (userId: number): Promise<ICGetCartOutSchema | null> => {
+export const getCartData = async (userId: number): Promise<ICGetCartOutSchema> => {
 
     // Variável de retorno
-    let cart: ICGetCartOutSchema | null = null;
+    let cart: ICGetCartOutSchema = {
+        id: 0,
+        changed: false,
+        totalValue: 0,
+        items: []
+    };
     
     // Lista de itens do carrinho
     let items: any[] = [];
@@ -65,7 +70,7 @@ export const getCartData = async (userId: number): Promise<ICGetCartOutSchema | 
         const cartId = (await client.query(dbQueryGetCart, [userId])).rows[0]?.id;
         if(cartId === undefined) {
             await client.query('ROLLBACK');
-            throw new ApiError(404, 'Carrinho inexistente');
+            return cart;
         }
 
         // Atualização de itens no carrinho
@@ -85,7 +90,7 @@ export const getCartData = async (userId: number): Promise<ICGetCartOutSchema | 
         items = (await client.query(dbQueryGetItems, [cartId])).rows;
         if(!items || items.length === 0){
             await client.query('ROLLBACK');
-            throw new ApiError(404, 'Carrinho vazio');
+            return cart;
         }
     
         // Calcula o valor total

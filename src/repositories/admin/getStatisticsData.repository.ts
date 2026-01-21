@@ -14,7 +14,7 @@ const dbQueryGetOrderStats = `
 const dbQueryGetProductsStats = `
     SELECT 
         COUNT(id) FILTER (WHERE soft_delete = false) AS "stockProducts",
-        SUM(quantity) FILTER (WHERE soft_delete = false) AS "stockItems" 
+        SUM(quantity * value) FILTER (WHERE soft_delete = false) AS "maxPotentialRevenue" 
     FROM products
 `;
 
@@ -80,43 +80,23 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção das estatísticas de pedidos e verificação de erros
         const queryGetOrderStats = (await client.query(dbQueryGetOrderStats));
-        if(queryGetOrderStats.rowCount == 0){
-            await client.query('ROLLBACK');
-            throw new ApiError(404, "Não foi possível obter as estatísticas de pedidos");
-        }
-        statistics = queryGetOrderStats.rows[0];
+        statistics = queryGetOrderStats.rows[0] || {totalOrders: 0, finishedOrders: 0, canceledOrders: 0};
 
         // Obtenção das estatísticas de produtos e verificação de erros
         const queryGetProductsStats = (await client.query(dbQueryGetProductsStats));
-        if(queryGetProductsStats.rowCount == 0){
-            await client.query('ROLLBACK');
-            throw new ApiError(404, "Não foi possível obter as estatísticas de produtos");
-        }
-        statistics = {...statistics, ...queryGetProductsStats.rows[0]};
+        statistics = {...statistics, ...queryGetProductsStats.rows[0] || {stockProducts: 0, maxPotentialRevenue: 0}};
 
         // Obtenção das estatísticas de receita e verificação de erros
         const queryGetRevenue = (await client.query(dbQueryGetTotalRevenueAndSoldItems));
-        if(queryGetRevenue.rowCount == 0){
-            await client.query('ROLLBACK');
-            throw new ApiError(404, "Não foi possível obter as estatísticas de receita");
-        }
-        statistics = {...statistics, ...queryGetRevenue.rows[0]};
+        statistics = {...statistics, ...queryGetRevenue.rows[0] || {totalRevenueValue: 0, soldItems: 0}};
 
         // Obtenção dos produtos com mais receita, e verificação de erros
         const queryProductsWithMoreRevenue = (await client.query(dbQueryProductsWithMoreRevenue, [moreRevenueQnt]));
-        if(queryProductsWithMoreRevenue.rowCount == 0){
-            await client.query('ROLLBACK');
-            throw new ApiError(404, "Não foi possível obter os produtos com mais receita");
-        }
-        statistics.productsWithMoreRevenueValue = queryProductsWithMoreRevenue.rows;
+        statistics.productsWithMoreRevenueValue = queryProductsWithMoreRevenue.rows || [];
 
         // Obtenção dos produtos com mais vendas, e verificação de erros
         const queryProductsWithMoreSolds = (await client.query(dbQueryProductsWithMoreSolds, [moreSoldQnt]));
-        if(queryProductsWithMoreSolds.rowCount == 0){
-            await client.query('ROLLBACK');
-            throw new ApiError(404, "Não foi possível obter os produtos com mais vendas");
-        }
-        statistics.productsWithMoreSoldQuantity = queryProductsWithMoreSolds.rows;
+        statistics.productsWithMoreSoldQuantity = queryProductsWithMoreSolds.rows || [];
         
         // Comando para finalizar a transação
         await client.query('COMMIT');

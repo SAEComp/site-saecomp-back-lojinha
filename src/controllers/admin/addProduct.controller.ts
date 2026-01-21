@@ -12,9 +12,6 @@ const addProduct = async(req: Request, res: Response): Promise<void> => {
     // Adiciona produto ao banco de dados
     const result = await addProductData(body);
     
-    // Verifica se o produto foi adicionado, e se não, retorna erro
-    if(!result) throw new ApiError(404, 'Produto não adicionado');
-
     // Valida o resultado antes de enviar a resposta
     const safedResult = addProductOutSchema.parse(result); 
 

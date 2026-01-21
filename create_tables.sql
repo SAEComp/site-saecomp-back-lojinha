@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS products(
 	bar_code		CHAR(13)		UNIQUE ,
 	soft_delete		BOOLEAN			DEFAULT FALSE,
 	img_url			TEXT			DEFAULT NULL,			
-	category		category_t		NOT NULL
+	category		category_t		NOT NULL,
+	is_active		BOOLEAN			NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS entry_histories(

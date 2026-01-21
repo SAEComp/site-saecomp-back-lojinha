@@ -5,6 +5,7 @@ import { ICGetPendingPaymentOutSchema } from "../../schemas/lojinha/output/getPe
 const dbQueryGetPendingPayments = `
     SELECT 
         bo.id AS "id",
+        bo.date AS "date",
         COALESCE(SUM(i.value * i.quantity), 0) AS "totalValue",
         pp.payment_id AS "paymentId",
         pp.qr_code AS "qrCodeBase64",

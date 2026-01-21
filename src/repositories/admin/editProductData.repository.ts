@@ -1,7 +1,6 @@
 import pool from "../../database/connection";
 import { ICEditProductInSchema } from "../../schemas/lojinha/input/editProductIn.schema";
 import { ApiError } from "../../errors/ApiError";
-import { th } from "zod/v4/locales/index.cjs";
 
 const dbQueryGetOldProductQuantity = `
     SELECT 
@@ -64,6 +63,10 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
         updateIndex.push(' category = $' + (values.length + 1));
         values.push(product.category);
     }
+    if(product.isActive !== undefined){
+        updateIndex.push(' is_active = $' + (values.length + 1));
+        values.push(product.isActive);
+    }
 
     // Se não houver campos para atualizar, retorna null
     if(updateIndex.length == 0) return null;
@@ -88,32 +91,38 @@ export const editProductData = async(product: ICEditProductInSchema): Promise<nu
         await client.query('BEGIN');
 
         /* 
-            Se a quantidade do produto foi atualizada, adiciona um registro na tabela entry_histories
-            e verifica o sucesso da inserção
+            Se a quantidade do produto foi atualizada ou se o valor do produto foi alterado, 
+            adiciona-se um registro na tabela entry_histories e verifica o sucesso da inserção
         */
-        if(product.quantity !== undefined){
-           
+        if(product.quantity !== undefined || product.value !== undefined){
 
-            // Obtém a quantidade antiga do produto
-             const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [product.productId])).rows[0];
+            // Obtém a quantidade antiga e o valor antigo do produto
+            const { oldQuantity, oldValue } = (await client.query(dbQueryGetOldProductQuantity, [product.productId])).rows[0];
             if(oldQuantity === undefined || oldQuantity === null || oldValue === undefined || oldValue === null){
                await client.query('ROLLBACK');
                throw new ApiError(404, 'Produto não encontrado');
             }
+
+            // Verifica se houve alteração na quantidade ou no valor
+            const valueChanged: boolean = product.value !== undefined && product.value !== oldValue;
+            const quantityChanged: boolean = product.quantity !== undefined && product.quantity !== oldQuantity;
             
-            // Se o valor do produto foi atualizado, utiliza o novo valor; caso contrário, utiliza o valor antigo
-            const newValue: number = product.value !== undefined ? product.value : oldValue;
-            
-            // Obtenção de quantidade líquida (permite verificar roubos na loja física)
-            const newQuantity: number = product.quantity - oldQuantity;
-                        
-            // Obtem o id do registro de adição de produto inserido
-            entryHistoryId = (await client.query(dbQueryAddEntryHistory, [product.productId, newQuantity, newValue])).rows[0]?.id
-            
-            // Verifica se a inserção foi bem sucedida
-            if(!entryHistoryId){
-                await client.query('ROLLBACK');
-                throw new ApiError(404, 'Não foi possível registrar o histórico de entrada do produto');
+            if(valueChanged || quantityChanged){
+                // Se o valor do produto foi atualizado, utiliza o novo valor; caso contrário, utiliza o valor antigo
+                const newValue: number = product.value !== undefined ? product.value : oldValue;
+                
+                // Obtenção de quantidade líquida (permite verificar roubos na loja física)
+                // Se a quantidade do produto foi atualizada, calcula a diferença; caso contrário, considera zero
+                const newQuantity: number = product.quantity !== undefined ? (product.quantity - oldQuantity) : 0;
+                            
+                // Obtem o id do registro de adição de produto inserido
+                entryHistoryId = (await client.query(dbQueryAddEntryHistory, [product.productId, newQuantity, newValue])).rows[0]?.id
+                
+                // Verifica se a inserção foi bem sucedida
+                if(!entryHistoryId){
+                    await client.query('ROLLBACK');
+                    throw new ApiError(404, 'Não foi possível registrar o histórico de entrada do produto');
+                }
             }
         }
 

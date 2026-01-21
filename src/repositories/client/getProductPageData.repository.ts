@@ -5,7 +5,7 @@ import { ICGetProductPageOutSchema } from "../../schemas/lojinha/output/getProdu
 export const getProductPageData = async(pageSettings: ICGetProductPageInSchema): Promise<ICGetProductPageOutSchema> => {
     
     // Desestruturação do schema de entrada
-    const {page, pageSize, category, name} = pageSettings;
+    const {page, pageSize, category, name, includeInactive} = pageSettings;
 
     // Partes dinâmicas da query
     let params: string[] = ['soft_delete = $1'];
@@ -20,6 +20,10 @@ export const getProductPageData = async(pageSettings: ICGetProductPageInSchema):
         params.push('name ILIKE $' + (values.length + 1));
         values.push(`%${name}%`);
     }
+    if(!includeInactive){
+        params.push('is_active = $' + (values.length + 1));
+        values.push(true);
+    }
 
     // Query completa
     const dbQuery = `
@@ -31,7 +35,8 @@ export const getProductPageData = async(pageSettings: ICGetProductPageInSchema):
             quantity,
             bar_code AS "barCode",
             img_url AS "imgUrl",
-            category 
+            category,
+            is_active AS "isActive" 
         FROM products
         WHERE 
             ${params.join(' AND ')}
