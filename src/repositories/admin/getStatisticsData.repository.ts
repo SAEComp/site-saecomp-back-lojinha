@@ -84,7 +84,7 @@ export const getStatisticsData = async(statisticsInfo: ICGetStatisticsInSchema):
 
         // Obtenção das estatísticas de produtos e verificação de erros
         const queryGetProductsStats = (await client.query(dbQueryGetProductsStats));
-        statistics = {...statistics, ...queryGetProductsStats.rows[0] || {stockProducts: 0, stockItems: 0}};
+        statistics = {...statistics, ...queryGetProductsStats.rows[0] || {stockProducts: 0, maxPotentialRevenue: 0}};
 
         // Obtenção das estatísticas de receita e verificação de erros
         const queryGetRevenue = (await client.query(dbQueryGetTotalRevenueAndSoldItems));
