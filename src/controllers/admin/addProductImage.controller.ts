@@ -74,7 +74,7 @@ export const addProductImage = (req: Request, res: Response, next: NextFunction)
         
         // Verifica se o arquivo foi enviado
         if (!req.file) {
-            return next(new ApiError(404, 'Nenhuma imagem enviada'));
+            return next(new ApiError(400, 'Nenhuma imagem enviada'));
         }
 
         // Retorna sucesso
