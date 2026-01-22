@@ -55,6 +55,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 };
 
 // Instancia o multer com as configurações definidas
+// Limite de tamanho de arquivo: 10MB
 export const upload = multer({ storage: storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // Controlador para adicionar imagem e enviar resposta
