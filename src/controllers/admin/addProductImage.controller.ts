@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction} from "express";
+import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../../errors/ApiError";
 import { addProductImageInSchema } from "../../schemas/lojinha/input/addProductImageIn.schema";
 import multer from "multer";
