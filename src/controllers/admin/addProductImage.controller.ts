@@ -1,7 +1,7 @@
-import { Request, Response} from "express";
+import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../../errors/ApiError";
 import { addProductImageInSchema } from "../../schemas/lojinha/input/addProductImageIn.schema";
-import multer from "multer" 
+import multer from "multer";
 import fs from "fs";
 
 // Cria o diretório de upload se não existir
@@ -55,14 +55,30 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 };
 
 // Instancia o multer com as configurações definidas
-export const upload = multer({ storage: storage, fileFilter});
+// Limite de tamanho de arquivo: 10MB
+export const upload = multer({ storage: storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // Controlador para adicionar imagem e enviar resposta
-export const addProductImage = async(req: Request, res: Response): Promise<void> =>{
-    // Verifica se o arquivo foi enviado
-    if(!req.file) throw new ApiError(404, 'Nenhuma imagem enviada');
+export const addProductImage = (req: Request, res: Response, next: NextFunction): void =>{
+    upload.single('productImage')(req, res, (err: any) => {
+        // Trata erros do multer
+        if (err) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                // Usa ApiError para padronizar a resposta
+                return next(new ApiError(400, 'O tamanho do arquivo excede o limite de 10MB'));
+            }
+            
+            // Outros erros do multer
+            return next(new ApiError(400, err.message));
+        }
+        
+        // Verifica se o arquivo foi enviado
+        if (!req.file) {
+            return next(new ApiError(400, 'Nenhuma imagem enviada'));
+        }
 
-    // Retorna sucesso
-    res.status(200).json({message: 'Imagem adicionada com sucesso'});
+        // Retorna sucesso
+        res.status(200).json({message: 'Imagem adicionada com sucesso'});
+    });
 };
 
