@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction} from "express";
 import { ApiError } from "../../errors/ApiError";
 import { addProductImageInSchema } from "../../schemas/lojinha/input/addProductImageIn.schema";
-import multer from "multer" 
+import multer from "multer";
 import fs from "fs";
 
 // Cria o diretório de upload se não existir
