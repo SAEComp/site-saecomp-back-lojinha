@@ -59,8 +59,8 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 export const upload = multer({ storage: storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
 
 // Controlador para adicionar imagem e enviar resposta
-export const addProductImage = async(req: Request, res: Response, next: NextFunction): Promise<void> =>{
-    await upload.single('productImage')(req, res, (err: any) => {
+export const addProductImage = (req: Request, res: Response, next: NextFunction): void =>{
+    upload.single('productImage')(req, res, (err: any) => {
         // Trata erros do multer
         if (err) {
             if (err.code === 'LIMIT_FILE_SIZE') {
