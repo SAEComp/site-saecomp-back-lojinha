@@ -3,6 +3,12 @@ import { ICAddToCartInSchema } from "../../schemas/lojinha/input/addToCartIn.sch
 import { ICAddToCartOutSchema } from "../../schemas/lojinha/output/addToCartOut.schema";
 import { ApiError } from "../../errors/ApiError";
 
+const dbQueryCheckPendingPayments = `
+    SELECT 1 FROM buy_orders
+    WHERE user_id = $1
+    AND status = 'pendingPayment'
+`;
+
 const dbQuerySearchCart = `
     SELECT id FROM buy_orders
     WHERE buy_orders.user_id = $1
@@ -68,6 +74,13 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
 
         // Início de transação com BD
         await client.query('BEGIN');
+
+        // Antes de adicionar ao carrinho, verifica se há ordens de compra pendentes de pagamento
+        const pendingPayments = (await client.query(dbQueryCheckPendingPayments, [userId])).rowCount;
+        if(pendingPayments){
+            await client.query('ROLLBACK');
+            throw new ApiError(404, 'Existem ordens de compra pendentes de pagamento. Finalize-as antes de adicionar novos itens ao carrinho');
+        }
 
         // Checagem de existência do carrinho, e, caso não exista, é criado
         let cartId = (await client.query(dbQuerySearchCart, [userId])).rows[0]?.id;
