@@ -23,8 +23,9 @@ const dbQueryCreateCart = `
 
 const dbQueryVerifyProduct = `
     SELECT 1 FROM products p
-    LEFT JOIN items i ON i.product_id = p.id
-    LEFT JOIN buy_orders bo ON i.buy_order_id = $1 
+    LEFT JOIN items i ON 
+        i.product_id = p.id
+        AND i.buy_order_id = $1
     WHERE p.id = $2 
         AND p.soft_delete = false
         AND p.quantity >= COALESCE(i.quantity,0) + $3
