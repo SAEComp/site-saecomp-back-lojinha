@@ -80,7 +80,7 @@ export const addtoCartData = async(userId: number, item: ICAddToCartInSchema): P
         const pendingPayments = (await client.query(dbQueryCheckPendingPayments, [userId])).rowCount;
         if(pendingPayments){
             await client.query('ROLLBACK');
-            throw new ApiError(404, 'Existem ordens de compra pendentes de pagamento. Finalize-as antes de adicionar novos itens ao carrinho');
+            throw new ApiError(409, 'Existem ordens de compra pendentes de pagamento. Finalize-as antes de adicionar novos itens ao carrinho');
         }
 
         // Checagem de existência do carrinho, e, caso não exista, é criado
