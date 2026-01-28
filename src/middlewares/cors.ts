@@ -9,11 +9,17 @@ const allowedOrigins = [
 
 const corsMiddleware = cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin) {
             return callback(null, true);
         }
-        return callback(new Error('Not allowed by CORS'));
-    }
+        
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        
+        callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true
 });
 
 export default corsMiddleware;

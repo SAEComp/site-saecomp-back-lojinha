@@ -19,6 +19,11 @@ export function errorHandler(
     res: Response,
     _next: NextFunction
 ) {
+
+    if (res.headersSent) {
+        return;
+    }
+
     let status = 500;
     let code = "INTERNAL_ERROR";
     let message: string = "Internal Server Error";

@@ -29,17 +29,24 @@ function verifyAccessToken(token: string): IAccessTokenPayload | null {
 
 function authenticate(requiredPermissions?: string[]): (req: Request, res: Response, next: NextFunction) => void {
     return (req: Request, res: Response, next: NextFunction): void => {
+        // Token utilizado para autenticação
+        let token: string | undefined;
         
+        // Aceita token do header authorization ou query parameter (necessário para SSE/EventSource)
         const authHeader = req.headers.authorization;
+        const queryToken = req.query.token as string;
         
-        // USO SOMENTE PARA TESTES!!!
-            // req.userId = 1;
-            // next();
-            // return;
+        // Extrai o token do header ou query parameter
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.split(' ')[1];
+        } else if (queryToken) {
+            token = queryToken;
+        }
         
-        if (!authHeader || !authHeader.startsWith('Bearer ')) throw new ApiError(401, 'Token de autenticação não fornecido ou inválido');
-
-        const token = authHeader.split(' ')[1];
+        // Verifica se o token foi fornecido
+        if (!token) {
+            throw new ApiError(401, 'Token de autenticação não fornecido ou inválido');
+        }
 
         try {
             const payload = verifyAccessToken(token);

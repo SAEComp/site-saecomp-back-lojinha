@@ -73,9 +73,12 @@ export const getEntryHistoryPageData = async (pageSettings: ICGetEntryHistoryPag
     // Adiciona parâmetros de paginação (página e tamanho da página)
     params.push(pageSize, (page - 1) * pageSize);
 
-    // Executa a query com filtros e paginação
+    // Obtém os dados da página de histórico de entradas
+    const entryHistory = (await pool.query(dbQueryGetEntryHistoryPage, params)).rows
+
+    // Monta o esquema de saída
     const entryHistoryPage: ICGetEntryHistoryPageOutSchema = { 
-        entryHistory: (await pool.query(dbQueryGetEntryHistoryPage, params)).rows
+        entryHistory: entryHistory
     };
 
     // Retorna os dados
