@@ -48,7 +48,6 @@ export const getPunctuationPageData = async(punctuationConfigs: ICGetPunctuation
 
     // Obtenção da página de pontuações
     const punctuation = (await pool.query(dbQueryGetPunctuationPage, values)).rows;
-    if(!punctuation || punctuation.length == 0) throw new ApiError(404, 'Nenhuma pontuação encontrada'); 
 
     // Montagem do esquema de saída 
     const punctuationPage: ICGetPunctuationPageOutSchema = {

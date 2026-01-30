@@ -34,7 +34,9 @@ const dbQueryGetItemsOfBuyOrder = `
 
 export const getPendingPaymentsData = async(userId: number):Promise<ICGetPendingPaymentOutSchema> => {
     // Resultado final
-    let result: ICGetPendingPaymentOutSchema;
+    let result: ICGetPendingPaymentOutSchema = { 
+        buyOrder: [] 
+    };
 
     // Inicia uma transação para garantir a integridade dos dados
     const client = await pool.connect();
@@ -45,7 +47,7 @@ export const getPendingPaymentsData = async(userId: number):Promise<ICGetPending
         const buyOrders = (await client.query(dbQueryGetPendingPayments, [userId])).rows;
         if(buyOrders.length === 0 || !buyOrders) {
             await client.query('ROLLBACK');
-            throw new ApiError(404, "Nenhum pedido pendente de pagamento encontrado");
+            return result;
         }
 
         // Para cada pedido, obtém os itens associados
@@ -54,7 +56,7 @@ export const getPendingPaymentsData = async(userId: number):Promise<ICGetPending
             order.item = (await client.query(dbQueryGetItemsOfBuyOrder, [order.id])).rows;
             if(!order.item || order.item.length === 0) {
                 await client.query('ROLLBACK');
-                throw new ApiError(404, `Nenhum item encontrado para o pedido de compra ID ${order.id}`);
+                return result;
             }
         }
 
