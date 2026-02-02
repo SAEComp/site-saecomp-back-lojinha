@@ -1,22 +1,6 @@
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'category_t') THEN
-        CREATE TYPE category_t AS ENUM('sweet', 'salty', 'drink');
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status_t') THEN
-        CREATE TYPE status_t AS ENUM('cart', 'pendingPayment', 'canceled' ,'finishedPayment');
-    END IF;
-END$$;
+CREATE TYPE category_t AS ENUM('sweet', 'salty', 'drink');
+CREATE TYPE status_t AS ENUM('cart', 'pendingPayment', 'canceled' ,'finishedPayment');
 
--- create table if not exists users (
---     id serial primary key,
---     google_sub text not null unique,
---     name text,
---     email text not null,
---     role text check (role in ('admin', 'user')) default 'user',
---     nusp varchar(10) unique,
---     created_at timestamp with time zone default now()
--- );
 
 CREATE TABLE IF NOT EXISTS products(
 	id				BIGSERIAL 		PRIMARY KEY,

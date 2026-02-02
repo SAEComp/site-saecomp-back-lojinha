@@ -6,17 +6,28 @@ const dbQueryGetPunctuation = `
     SELECT 
         p.score as "userPunctuation",
         u.name as "userName"
-    FROM punctuations p
-    INNER JOIN users u ON u.id = p.user_id
+    FROM users u
+    LEFT JOIN punctuations p ON u.id = p.user_id
     WHERE u.id = $1
 `;
 
 export const getPunctuationData = async(userId: number): Promise<ICGetPunctuationOutSchema> => {
-    // Obtenção da pontuação do usuário
-    const punctuation = (await pool.query(dbQueryGetPunctuation, [userId])).rows[0];
-    if(punctuation.userPunctuation === undefined || punctuation.userPunctuation == null || !punctuation.userName)
-        throw new ApiError(404, 'Pontuação do usuário não encontrada');
+    // Pontuação do usuário
+    let punctuation: ICGetPunctuationOutSchema = {
+        userName: "",
+        userPunctuation: 0
+    }
 
+    // Obtenção da pontuação do usuário
+    const row = (await pool.query(dbQueryGetPunctuation, [userId])).rows[0];
+
+    // Verifica se o usuário existe, se não, lança um erro
+    if(!row || !row.userName) throw new ApiError(404, 'Usuário não encontrado');
+    punctuation.userName = row.userName;
+
+    // Verifica se o usuário possui pontuação, se não, ela permanece 0
+    if(row.userPunctuation) punctuation.userPunctuation = row.userPunctuation;
+    
     // Retorno da pontuação do usuário
-    return punctuation as ICGetPunctuationOutSchema;
+    return punctuation;
 }

@@ -14,10 +14,6 @@ const getBuyOrderPage = async(req: Request, res: Response): Promise<void> => {
 
     // Obtém página de produtos (com ou sem especificação de categoria)
     buyOrderPage = await getBuyOrderPageData(query);
-   
-    // Verifica se há produtos a serem retornados
-    if(!buyOrderPage || buyOrderPage.buyOrder.length === 0) 
-        throw new ApiError(404, 'Nenhum pedido encontrado');
     
     // Valida os produtos obtidos com o schema de saída
     const safedBuyOrderPage = getBuyOrderPageOutSchema.parse(buyOrderPage);
