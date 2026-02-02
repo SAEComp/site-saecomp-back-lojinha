@@ -29,5 +29,5 @@ export const getPunctuationData = async(userId: number): Promise<ICGetPunctuatio
     if(row.userPunctuation) punctuation.userPunctuation = row.userPunctuation;
     
     // Retorno da pontuação do usuário
-    return punctuation ;
+    return punctuation;
 }
