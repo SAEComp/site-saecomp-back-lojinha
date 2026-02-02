@@ -6,8 +6,8 @@ const dbQueryGetPunctuation = `
     SELECT 
         p.score as "userPunctuation",
         u.name as "userName"
-    FROM punctuations p
-    RIGHT JOIN users u ON u.id = p.user_id
+    FROM users u
+    LEFT JOIN punctuations p ON u.id = p.user_id
     WHERE u.id = $1
 `;
 
