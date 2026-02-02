@@ -22,7 +22,7 @@ export const getPunctuationData = async(userId: number): Promise<ICGetPunctuatio
     const row = (await pool.query(dbQueryGetPunctuation, [userId])).rows[0];
 
     // Verifica se o usuário existe, se não, lança um erro
-    if(!row.userName) throw new ApiError(404, 'Usuário não encontrado');
+    if(!row || !row.userName) throw new ApiError(404, 'Usuário não encontrado');
     punctuation.userName = row.userName;
 
     // Verifica se o usuário possui pontuação, se não, ela permanece 0
