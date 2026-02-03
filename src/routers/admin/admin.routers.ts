@@ -17,7 +17,7 @@ const adminRouter = express.Router();
 // Definição das rotas de administração
 adminRouter.post('/pix-key', authenticate(['lojinha:pix-key-management']), addPixKey);
 adminRouter.get('/pix-key', authenticate(['lojinha:pix-key-management']), getPixKey);
-adminRouter.delete('/pix-key', authenticate(['lojinha:pix-management']), removePixKey);
+adminRouter.delete('/pix-key', authenticate(['lojinha:pix-key-management']), removePixKey);
 adminRouter.post('/product', authenticate(['lojinha:product-management']), addProduct);
 adminRouter.put('/product', authenticate(['lojinha:product-management']), editProduct);
 adminRouter.delete('/product', authenticate(['lojinha:product-management']), removeProduct);

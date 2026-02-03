@@ -2,6 +2,8 @@ import pool from "../database/connection";
 import { ICPaymentData } from "../schemas/lojinha/output/finishBuyOut.schema";
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import getAccountToken from "./getAccountToken";
+import rollbackBuyOrderToCart from "./rollbackBuyOrderToCart";
+import { ApiError } from "../errors/ApiError";
 
 const dbQueryInserPixPayment = `
     INSERT INTO pix_payments (buy_order_id, payment_id, qr_code, pix_copia_cola)
@@ -31,25 +33,32 @@ const getOrderPix = async(buyOrderId: number, buyOrderValue: number, userEmail: 
         date_of_expiration: new Date(Date.now() + 1800000).toISOString(), // expira em 30 minutos
     };
 
-    // Tentativa de criação do pagamento
-    // Criação do pagamento
-    const pixPayment = await paymentAPI.create({body});
 
-    // Obtenção dos dados do pix
-    const payment = {
-        paymentId: pixPayment?.id,
-        pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code,
-        qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64,
-    };
+    try{
+        // Tentativa de criação do pagamento
+        const pixPayment = await paymentAPI.create({body});
 
-    // Criação do registro do pix no banco de dados
-    const rowCount = (await pool.query(dbQueryInserPixPayment, [buyOrderId, String(payment.paymentId), payment.qrCodeBase64, payment.pixCopiaECola])).rowCount;
-    if(rowCount === 0){
-        throw new Error('Erro ao registrar pagamento pix no banco de dados');
+        // Obtenção dos dados do pix
+        const payment = {
+            paymentId: pixPayment?.id,
+            pixCopiaECola: pixPayment.point_of_interaction?.transaction_data?.qr_code,
+            qrCodeBase64: pixPayment.point_of_interaction?.transaction_data?.qr_code_base64,
+        };
+
+        // Criação do registro do pix no banco de dados
+        const rowCount = (await pool.query(dbQueryInserPixPayment, [buyOrderId, String(payment.paymentId), payment.qrCodeBase64, payment.pixCopiaECola])).rowCount;
+        if(rowCount === 0){
+            throw new ApiError(500, 'Erro ao registrar o pagamento pix no banco de dados');
+        }
+
+        // Retorno dos dados do pix
+        return payment as ICPaymentData ;
     }
-
-    // Retorno dos dados do pix
-    return payment as ICPaymentData ;
+    catch (error){
+        // Se der erro, retorna o pedido para o estado de carrinho
+        await rollbackBuyOrderToCart(buyOrderId);
+        throw error;
+    }
 };
 
 
