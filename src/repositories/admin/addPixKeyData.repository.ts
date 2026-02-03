@@ -1,6 +1,8 @@
 import pool from "../../database/connection";
 import { ApiError } from "../../errors/ApiError";
 import { ICAddPixKeyInSchema } from "../../schemas/lojinha/input/addPixKeyIn.schema";
+import verifyAccountToken from "../../services/verifyAccountToken";
+
 
 const dbQueryDeletePixKey = `
     DELETE FROM pix_keys
@@ -13,6 +15,13 @@ const dbQueryAddPixKey = `
 `;
 
 export const addPixKeyData = async (pixAccount: ICAddPixKeyInSchema):Promise<void> => {
+
+    // Verificar se o token da conta pix é válido  
+    const isTokenValid: boolean = await verifyAccountToken(pixAccount.tokenAccount);
+    if(!isTokenValid){
+        throw new ApiError(400, 'Token da conta pix inválido');
+    }
+
     // abrir uma transação
     const client = await pool.connect();
 
