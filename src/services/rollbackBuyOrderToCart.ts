@@ -4,7 +4,9 @@ import { ApiError } from "../errors/ApiError";
 const dbQueryRollbackBuyOrderToCart = `
     UPDATE buy_orders
     SET status = 'cart'
-    WHERE id = $1
+    WHERE 
+        id = $1
+        AND status = 'pendingPayment'
 `;
 
 const dbQueryRollbackBuyOrderToCartItems = `
@@ -16,7 +18,7 @@ const dbQueryRollbackBuyOrderToCartItems = `
         INNER JOIN buy_orders bo ON i.buy_order_id = bo.id
         WHERE 
             i.buy_order_id = $1
-            AND bo.status = 'pending_payment'
+            AND bo.status = 'pendingPayment'
     )
     UPDATE products
     SET quantity = products.quantity + oldproduct.quantity
